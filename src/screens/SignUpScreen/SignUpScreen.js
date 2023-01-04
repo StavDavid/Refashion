@@ -22,7 +22,7 @@ const SignUpScreen = () => {
       });
       navigation.navigate('ConfirmEmailScreen', {username});
     } catch (e) {
-      Alert.alert('Oops', e.message);
+      Alert.alert('אופס', e.message);
     }
   };
   const onSignInPressed = () => {
@@ -37,85 +37,82 @@ const SignUpScreen = () => {
   return (
     <ScrollView showVerticalScrollIndicator={false}>
       <View style={styles.root}>
-        <Text style={styles.title}>Create an account</Text>
+        <Text style={styles.title}>יצירת משתמש</Text>
         <CustomInput
           name="name"
           control={control}
-          placeholder="Name"
+          placeholder="שם ושם משפחה"
           rules={{
-            required: 'Name is required',
+            required: 'שם הכרחי',
             minLength: {
               value: 3,
-              message: 'Name should be at least 3 charachters long',
+              message: 'יש להזין משתמש בעל לפחות 3 תווים',
             },
             maxLength: {
               value: 24,
-              message: 'Name should be at least 24 charachters long',
+              message: 'יש להזין שם ושם משפחה בעל פחות מ24 תווים',
             },
           }}
         />
         <CustomInput
           name="username"
           control={control}
-          placeholder="Username"
+          placeholder="שם משתמש"
           rules={{
-            required: 'Username is required',
+            required: 'שם משתמש חובה',
             minLength: {
               value: 3,
-              message: 'Username should be at least 3 charachters long',
+              message: 'יש להזין שם משתמש בעל לפחות 3 תווים',
             },
             maxLength: {
               value: 24,
-              message: 'Username should be at least 24 charachters long',
+              message: 'יש להזין משתמש בעל פחות מ24 תווים',
             },
           }}
         />
         <CustomInput
           name="email"
-          placeholder="Email"
+          placeholder="אימייל"
           control={control}
-          rules={{pattern: {value: EMAIL_REGEX, message: 'Email is invalid'}}}
+          rules={{pattern: {value: EMAIL_REGEX, message: 'אימייל לא חוקי'}}}
         />
         <CustomInput
           name="password"
-          placeholder="Password"
+          placeholder="סיסמא"
           control={control}
           secureTextEntry
           rules={{
-            required: 'Password is required',
+            required: 'יש להזין סיסמא',
             minLength: {
               value: 8,
-              message: 'Password should be at least 8 charachters long',
+              message: 'יש להזין סיסמא בעלת לפחות 8 תווים',
             },
           }}
         />
         <CustomInput
           name="password-repeat"
-          placeholder="Repeat Password"
+          placeholder="הזן סיסמא שנית"
           control={control}
           secureTextEntry
           rules={{
-            validate: value => value === pwd || 'Password do not match',
+            validate: value => value === pwd || 'סיסמא לא תואמת',
           }}
         />
-        <CustomButton
-          text="Register"
-          onPress={handleSubmit(onRegisterPressed)}
-        />
+        <CustomButton text="הרשם" onPress={handleSubmit(onRegisterPressed)} />
         <Text style={styles.text}>
-          By registering, you confirm that you accept our{' '}
+          בהרשמה הנך מסכים{' '}
           <Text style={styles.link} onPress={onTermsOfUsePressed}>
-            Terms of Use
+            לתנאי השימוש
           </Text>{' '}
-          and
+          וגם
           <Text style={styles.link} onPress={onPrivacyPolicyPressed}>
             {' '}
-            Privacy Policy
+            למדיניות הפרטיות
           </Text>
         </Text>
-        <SocialSignInButtons />
+        {/* <SocialSignInButtons /> */}
         <CustomButton
-          text="Have an account? Sign in"
+          text="כבר רשום? התחבר כאן"
           onPress={onSignInPressed}
           type="TERTIARY"
         />

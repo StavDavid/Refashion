@@ -14,7 +14,7 @@ const ForgotPasswordScreen = () => {
       await Auth.forgotPassword(data.username);
       navigation.navigate('NewPasswordScreen');
     } catch (e) {
-      Alert.alert('Oops', e.message);
+      Alert.alert('אופס', e.message);
     }
   };
   const onSignInPressed = () => {
@@ -23,16 +23,16 @@ const ForgotPasswordScreen = () => {
   return (
     <ScrollView showVerticalScrollIndicator={false}>
       <View style={styles.root}>
-        <Text style={styles.title}>Reset Your Password</Text>
+        <Text style={styles.title}>איפוס סיסמא</Text>
         <CustomInput
           name="username"
           control={control}
-          placeholder="Username"
-          rules={{required: 'Username is required'}}
+          placeholder="שם משתמש"
+          rules={{required: 'יש להזין שם משתמש'}}
         />
-        <CustomButton text="Send" onPress={handleSubmit(onSendPressed)} />
+        <CustomButton text="שלח" onPress={handleSubmit(onSendPressed)} />
         <CustomButton
-          text="Back to Sign In"
+          text="חזור למסך ההתחברות"
           onPress={onSignInPressed}
           type="TERTIARY"
         />

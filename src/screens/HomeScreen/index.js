@@ -9,7 +9,7 @@ const index = () => {
 
   return (
     <View style={{flex: 1}}>
-      <Text style={{fontSize: 24, alignSelf: 'center'}}>Home, sweet home</Text>
+      <Text style={{fontSize: 24, alignSelf: 'center'}}>דף הבית</Text>
       <Text
         onPress={signOut}
         style={{
@@ -20,7 +20,7 @@ const index = () => {
           marginVertical: 20,
           fontSize: 20,
         }}>
-        Sign out
+        התנתק
       </Text>
     </View>
   );

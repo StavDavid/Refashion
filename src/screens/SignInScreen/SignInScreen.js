@@ -42,7 +42,7 @@ const SignInScreen = () => {
     // navigation.navigate('Home');
   };
   const onForgotPasswordPressed = () => {
-    navigation.navigate('ForgotPassword');
+    navigation.navigate('ForgotPasswordScreen');
   };
   const onSignUpPressed = () => {
     navigation.navigate('SignUp');
@@ -57,36 +57,36 @@ const SignInScreen = () => {
         />
         <CustomInput
           name="username"
-          placeholder="Username"
+          placeholder="שם משתמש"
           control={control}
-          rules={{required: 'Username is required'}}
+          rules={{required: 'יש להזין שם משתמש'}}
         />
         <CustomInput
           name="password"
-          placeholder="Password"
+          placeholder="סיסמא"
           secureTextEntry
           control={control}
           rules={{
-            required: 'Password is requierd',
+            required: 'יש להזין סיסמא',
             minLength: {
               value: 8,
-              message: 'Password should be minimum 8 charachter long',
+              message: 'יש להזין סיסמא בעלת לפחות 8 תווים',
             },
           }}
         />
 
         <CustomButton
-          text={loading ? 'Loading...' : 'Sign In'}
+          text={loading ? 'טוען...' : 'התחבר'}
           onPress={handleSubmit(onSignInPressed)}
         />
         <CustomButton
-          text="Forgot Password"
+          text="שכחתי סיסמא"
           onPress={onForgotPasswordPressed}
           type="TERTIARY"
         />
-        <SocialSignInButtons />
+        {/* <SocialSignInButtons /> */}
         <CustomButton
-          text="Don't have an account? Create one"
+          text="עדיין לא נרשמת? הרשם עכשיו"
           onPress={onSignUpPressed}
           type="TERTIARY"
         />

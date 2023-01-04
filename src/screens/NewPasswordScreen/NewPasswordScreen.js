@@ -14,7 +14,7 @@ const NewPasswordScreen = () => {
       await Auth.forgotPasswordSubmit(data.username, data.code, data.password);
       navigation.navigate('SignIn');
     } catch (e) {
-      Alert.alert('Oops', e.message);
+      Alert.alert('אופס', e.message);
     }
   };
   const onSignInPressed = () => {
@@ -23,34 +23,34 @@ const NewPasswordScreen = () => {
   return (
     <ScrollView showVerticalScrollIndicator={false}>
       <View style={styles.root}>
-        <Text style={styles.title}>Reset Your Password</Text>
+        <Text style={styles.title}>אפס סיסמא</Text>
         <CustomInput
           name="username"
-          placeholder="Username"
+          placeholder="שם משתמש"
           control={control}
           rules={{required: 'Username is required'}}
         />
         <CustomInput
           name="code"
-          placeholder="Code"
+          placeholder="קוד"
           control={control}
           rules={{required: 'Code is required'}}
         />
         <CustomInput
           name="password"
           control={control}
-          placeholder="Enter your new password"
+          placeholder="הזן סיסמא חדשה"
           rules={{
-            required: 'Password is required',
+            required: 'יש להזין סיסמא',
             minLength: {
               value: 8,
-              message: 'Password should be at least 8 charachters long',
+              message: 'יש להזין סיסמא עם 8 תווים או יותר',
             },
           }}
         />
         <CustomButton text="Submit" onPress={handleSubmit(onSubmitPressed)} />
         <CustomButton
-          text="Back to Sign In"
+          text="חזרה למסך ההתחברות"
           onPress={onSignInPressed}
           type="TERTIARY"
         />

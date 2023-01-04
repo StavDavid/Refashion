@@ -22,7 +22,7 @@ const ConfirmEmailScreen = () => {
       const response = await Auth.confirmSignUp(data.username, data.code);
       navigation.navigate('SignIn');
     } catch (e) {
-      Alert.alert('Oops', e.message);
+      Alert.alert('אופס', e.message);
     }
     // navigation.navigate('Home');
   };
@@ -32,9 +32,9 @@ const ConfirmEmailScreen = () => {
   const onResendPressed = async () => {
     try {
       await Auth.resendSignUp(username);
-      Alert.alert('Success', 'Code was resent to your email');
+      Alert.alert('הצלחנו!', 'קוד חדש נשלח לתיבת הדוא"ל שלך');
     } catch (e) {
-      Alert.alert('Oops', e.message);
+      Alert.alert('אופס', e.message);
     }
   };
   return (
@@ -44,17 +44,17 @@ const ConfirmEmailScreen = () => {
         <CustomInput
           name="code"
           control={control}
-          placeholder="Enter your confirmation code"
-          rules={{required: 'Confirmation code is required'}}
+          placeholder="הזן קוד אימות"
+          rules={{required: 'קוד אימות לא הוזן'}}
         />
         <CustomButton text="Confirm" onPress={handleSubmit(onConfirmPressed)} />
         <CustomButton
-          text="Resend Code"
+          text="שלח קוד מחדש"
           onPress={onResendPressed}
           type="SECONDARY"
         />
         <CustomButton
-          text="Back to Sign In"
+          text="חזרה למסך ההתחברות"
           onPress={onSignInPressed}
           type="TERTIARY"
         />

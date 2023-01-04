@@ -36,7 +36,14 @@ const styles = StyleSheet.create({
     borderColor: '#3B71F3',
     borderWidth: 2,
   },
-  container_TERTIARY: {},
+  container_TERTIARY: {
+    width: '100%',
+    textAlign: 'center',
+    color: 'red',
+    marginTop: 'auto',
+    marginVertical: '50%',
+    fontSize: 20,
+  },
   text: {
     fontWeight: 'bold',
     color: 'white',
