@@ -112,7 +112,7 @@ const SignUpScreen = () => {
         </Text>
         {/* <SocialSignInButtons /> */}
         <CustomButton
-          text="כבר רשום? התחבר כאן"
+          text="מעבר למסך ההתחברות"
           onPress={onSignInPressed}
           type="TERTIARY"
         />
