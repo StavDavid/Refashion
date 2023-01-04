@@ -1,0 +1,20 @@
+{
+  "staging": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-refashion-staging-52856-authRole",
+      "UnauthRoleArn": "arn:aws:iam::462195484632:role/amplify-refashion-staging-52856-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::462195484632:role/amplify-refashion-staging-52856-authRole",
+      "Region": "ap-northeast-1",
+      "DeploymentBucketName": "amplify-refashion-staging-52856-deployment",
+      "UnauthRoleName": "amplify-refashion-staging-52856-unauthRole",
+      "StackName": "amplify-refashion-staging-52856",
+      "StackId": "arn:aws:cloudformation:ap-northeast-1:462195484632:stack/amplify-refashion-staging-52856/af2b0f00-8bf0-11ed-8f62-0651fa1f475b",
+      "AmplifyAppId": "d1nfmaqwgbv3qb"
+    },
+    "categories": {
+      "auth": {
+        "Refashion": {}
+      }
+    }
+  }
+}
