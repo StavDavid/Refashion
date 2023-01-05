@@ -57,36 +57,36 @@ const SignInScreen = () => {
         />
         <CustomInput
           name="username"
-          placeholder="שם משתמש"
+          placeholder="Username"
           control={control}
-          rules={{required: 'יש להזין שם משתמש'}}
+          rules={{required: 'Username is required'}}
         />
         <CustomInput
           name="password"
-          placeholder="סיסמא"
+          placeholder="Password"
           secureTextEntry
           control={control}
           rules={{
-            required: 'יש להזין סיסמא',
+            required: 'Password is requierd',
             minLength: {
               value: 8,
-              message: 'יש להזין סיסמא בעלת לפחות 8 תווים',
+              message: 'Password should be minimum 8 charachter long',
             },
           }}
         />
 
         <CustomButton
-          text={loading ? 'טוען...' : 'התחבר'}
+          text={loading ? 'Loading...' : 'Sign In'}
           onPress={handleSubmit(onSignInPressed)}
         />
         <CustomButton
-          text="שכחתי סיסמא"
+          text="Forgot Password"
           onPress={onForgotPasswordPressed}
           type="TERTIARY"
         />
         {/* <SocialSignInButtons /> */}
         <CustomButton
-          text="עדיין לא נרשמת? הרשם עכשיו"
+          text="Don't have an account? Create one now!"
           onPress={onSignUpPressed}
           type="TERTIARY"
         />

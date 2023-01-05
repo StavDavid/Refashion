@@ -23,34 +23,34 @@ const NewPasswordScreen = () => {
   return (
     <ScrollView showVerticalScrollIndicator={false}>
       <View style={styles.root}>
-        <Text style={styles.title}>אפס סיסמא</Text>
+        <Text style={styles.title}>Reset Your Password</Text>
         <CustomInput
           name="username"
-          placeholder="שם משתמש"
+          placeholder="Username"
           control={control}
           rules={{required: 'Username is required'}}
         />
         <CustomInput
           name="code"
-          placeholder="קוד"
+          placeholder="Code"
           control={control}
           rules={{required: 'Code is required'}}
         />
         <CustomInput
           name="password"
           control={control}
-          placeholder="הזן סיסמא חדשה"
+          placeholder="Enter your new password"
           rules={{
-            required: 'יש להזין סיסמא',
+            required: 'Password is required',
             minLength: {
               value: 8,
-              message: 'יש להזין סיסמא עם 8 תווים או יותר',
+              message: 'Password should be at least 8 charachters long',
             },
           }}
         />
         <CustomButton text="Submit" onPress={handleSubmit(onSubmitPressed)} />
         <CustomButton
-          text="חזרה למסך ההתחברות"
+          text="Back to Sign In"
           onPress={onSignInPressed}
           type="TERTIARY"
         />
