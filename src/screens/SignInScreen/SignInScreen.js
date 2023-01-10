@@ -15,7 +15,14 @@ import CustomButton from '../../components/CustomButton';
 import SocialSignInButtons from '../../components/SocialSignInButtons';
 import {useNavigation} from '@react-navigation/native';
 import {useForm, Controller} from 'react-hook-form';
-import {Auth} from 'aws-amplify';
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from 'firebase/auth';
+import {auth} from '../../../firebase';
+
 const SignInScreen = () => {
   const {height} = useWindowDimensions();
   const navigation = useNavigation();
@@ -34,12 +41,26 @@ const SignInScreen = () => {
     setLoading(true);
 
     try {
-      const response = await Auth.signIn(data.username, data.password);
+      const user = await signInWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password,
+      );
+      // navigation.navigate('Home');
+      checkVerification();
     } catch (e) {
       Alert.alert('Oops', e.message);
     }
     setLoading(false);
     // navigation.navigate('Home');
+    // navigation.navigate('Home');
+  };
+  const checkVerification = () => {
+    if (auth.currentUser.emailVerified === false) {
+      Alert.alert('Please Verify Your Email');
+    } else {
+      navigation.navigate('Home');
+    }
   };
   const onForgotPasswordPressed = () => {
     navigation.navigate('ForgotPasswordScreen');
@@ -47,6 +68,7 @@ const SignInScreen = () => {
   const onSignUpPressed = () => {
     navigation.navigate('SignUp');
   };
+
   return (
     <ScrollView showVerticalScrollIndicator={false}>
       <View style={styles.root}>
@@ -56,10 +78,10 @@ const SignInScreen = () => {
           resizeMode="contain"
         />
         <CustomInput
-          name="username"
-          placeholder="Username"
+          name="email"
+          placeholder="Email"
           control={control}
-          rules={{required: 'Username is required'}}
+          rules={{required: 'Email is required'}}
         />
         <CustomInput
           name="password"

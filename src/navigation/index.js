@@ -9,7 +9,6 @@ import ConfirmEmailScreen from '../screens/ConfirmEmailScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import NewPasswordScreen from '../screens/NewPasswordScreen';
 import HomeScreen from '../screens/HomeScreen';
-import {Auth, Hub} from 'aws-amplify';
 
 const Stack = createNativeStackNavigator();
 
@@ -18,8 +17,19 @@ const Navigation = () => {
 
   const checkUser = async () => {
     try {
-      const authUser = await Auth.currentAuthenticatedUser({bypassCache: true});
-      setUser(authUser);
+      const auth = getAuth();
+      const authUser = onAuthStateChanged(auth, user => {
+        if (user) {
+          // User is signed in, see docs for a list of available properties
+          // https://firebase.google.com/docs/reference/js/firebase.User
+          const uid = user.uid;
+          setUser(authUser);
+        } else {
+          // User is signed out
+          // ...
+          setUser(null);
+        }
+      });
     } catch (e) {
       setUser(null);
     }
@@ -36,41 +46,34 @@ const Navigation = () => {
       }
     };
 
-    Hub.listen('auth', listener);
-    return () => Hub.remove('auth', listener);
+    // Hub.listen('auth', listener);
+    // return () => Hub.remove('auth', listener);
   }, []);
-
-  if (user === undefined) {
+  if (user) {
     return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <ActivityIndicator />
-      </View>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{headerShown: false}}>
+          <Stack.Screen name="Home" component={HomeScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
     );
   }
 
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{headerShown: false}}>
-        {user ? (
-          <Stack.Screen name="Home" component={HomeScreen} />
-        ) : (
-          <>
-            <Stack.Screen name="SignIn" component={SignInScreen} />
-            <Stack.Screen name="SignUp" component={SignUpScreen} />
-            <Stack.Screen
-              name="ConfirmEmailScreen"
-              component={ConfirmEmailScreen}
-            />
-            <Stack.Screen
-              name="ForgotPasswordScreen"
-              component={ForgotPasswordScreen}
-            />
-            <Stack.Screen
-              name="NewPasswordScreen"
-              component={NewPasswordScreen}
-            />
-          </>
-        )}
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="SignIn" component={SignInScreen} />
+        <Stack.Screen name="SignUp" component={SignUpScreen} />
+        <Stack.Screen
+          name="ConfirmEmailScreen"
+          component={ConfirmEmailScreen}
+        />
+        <Stack.Screen
+          name="ForgotPasswordScreen"
+          component={ForgotPasswordScreen}
+        />
+        <Stack.Screen name="NewPasswordScreen" component={NewPasswordScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

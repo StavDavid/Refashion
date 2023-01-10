@@ -5,17 +5,23 @@ import CustomButton from '../../components/CustomButton';
 import SocialSignInButtons from '../../components/SocialSignInButtons';
 import {useNavigation} from '@react-navigation/native';
 import {useForm} from 'react-hook-form';
-import {Auth} from 'aws-amplify';
+import {sendPasswordResetEmail} from 'firebase/auth';
+import {auth} from '../../../firebase';
 const ForgotPasswordScreen = () => {
   const {control, handleSubmit} = useForm();
   const navigation = useNavigation();
   const onSendPressed = async data => {
-    try {
-      await Auth.forgotPassword(data.username);
-      navigation.navigate('NewPasswordScreen');
-    } catch (e) {
-      Alert.alert('Oops', e.message);
-    }
+    sendPasswordResetEmail(auth, data.email)
+      .then(() => {
+        Alert.alert('Reset Password Email Sent!');
+      })
+      .then(() => {
+        navigation.navigate('SignIn');
+      })
+      .catch(error => {
+        Alert.alert(error.message);
+        // ..
+      });
   };
   const onSignInPressed = () => {
     navigation.navigate('SignIn');
@@ -25,10 +31,10 @@ const ForgotPasswordScreen = () => {
       <View style={styles.root}>
         <Text style={styles.title}>Reset Your Password</Text>
         <CustomInput
-          name="username"
+          name="email"
           control={control}
-          placeholder="Username"
-          rules={{required: 'Username is required'}}
+          placeholder="Email"
+          rules={{required: 'Email is required'}}
         />
         <CustomButton text="Send" onPress={handleSubmit(onSendPressed)} />
         <CustomButton

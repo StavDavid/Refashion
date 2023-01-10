@@ -5,7 +5,8 @@ import CustomButton from '../../components/CustomButton';
 import SocialSignInButtons from '../../components/SocialSignInButtons';
 import {useNavigation} from '@react-navigation/native';
 import {useForm} from 'react-hook-form';
-import {Auth} from 'aws-amplify';
+import {getAuth, createUserWithEmailAndPassword} from 'firebase/auth';
+import {auth} from '../../../firebase';
 EMAIL_REGEX = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
 const SignUpScreen = () => {
@@ -15,12 +16,12 @@ const SignUpScreen = () => {
   const onRegisterPressed = async data => {
     const {username, password, email, name} = data;
     try {
-      const response = await Auth.signUp({
-        username,
-        password,
-        attributes: {email, name, preferred_username: username},
-      });
-      navigation.navigate('ConfirmEmailScreen', {username});
+      const user = await createUserWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password,
+      );
+      navigation.navigate('ConfirmEmailScreen');
     } catch (e) {
       Alert.alert('Oops', e.message);
     }
@@ -38,7 +39,7 @@ const SignUpScreen = () => {
     <ScrollView showVerticalScrollIndicator={false}>
       <View style={styles.root}>
         <Text style={styles.title}>Create a user</Text>
-        <CustomInput
+        {/* <CustomInput
           name="name"
           control={control}
           placeholder="Full name"
@@ -69,7 +70,7 @@ const SignUpScreen = () => {
               message: 'Username should be maximum 24 charachters long',
             },
           }}
-        />
+        /> */}
         <CustomInput
           name="email"
           placeholder="Email"

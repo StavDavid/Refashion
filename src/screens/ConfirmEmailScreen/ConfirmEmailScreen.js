@@ -6,7 +6,8 @@ import SocialSignInButtons from '../../components/SocialSignInButtons';
 import {useNavigation} from '@react-navigation/native';
 import {useForm} from 'react-hook-form';
 import {useRoute} from '@react-navigation/native';
-import {Auth} from 'aws-amplify';
+import {auth} from '../../../firebase';
+import {sendEmailVerification} from 'firebase/auth';
 const ConfirmEmailScreen = () => {
   const route = useRoute();
   const {control, handleSubmit, watch} = useForm({
@@ -19,7 +20,10 @@ const ConfirmEmailScreen = () => {
 
   const onConfirmPressed = async data => {
     try {
-      const response = await Auth.confirmSignUp(data.username, data.code);
+      // const auth = getAuth();
+      sendEmailVerification(auth.currentUser).then(() => {
+        Alert.alert('Success! Verification Email sent');
+      });
       navigation.navigate('SignIn');
     } catch (e) {
       Alert.alert('Oops', e.message);
@@ -29,30 +33,33 @@ const ConfirmEmailScreen = () => {
   const onSignInPressed = () => {
     navigation.navigate('SignIn');
   };
-  const onResendPressed = async () => {
-    try {
-      await Auth.resendSignUp(username);
-      Alert.alert('Success', 'Code was resent to your email');
-    } catch (e) {
-      Alert.alert('Oops', e.message);
-    }
-  };
+  // const onResendPressed = async () => {
+  //   try {
+  //     await Auth.resendSignUp(username);
+  //     Alert.alert('Success', 'Code was resent to your email');
+  //   } catch (e) {
+  //     Alert.alert('Oops', e.message);
+  //   }
+  // };
   return (
     <ScrollView showVerticalScrollIndicator={false}>
       <View style={styles.root}>
-        <Text style={styles.title}>Confirm Your Email</Text>
-        <CustomInput
+        <Text style={styles.title}>Please Confirm Your Email</Text>
+        {/* <CustomInput
           name="code"
           control={control}
           placeholder="Enter your confirmation code"
           rules={{required: 'Confirmation code is required'}}
-        />
-        <CustomButton text="Confirm" onPress={handleSubmit(onConfirmPressed)} />
+        /> */}
         <CustomButton
-          text="Resend Code"
+          text="Send Verification Email"
+          onPress={handleSubmit(onConfirmPressed)}
+        />
+        {/* <CustomButton
+          text="Send Verification Email"
           onPress={onResendPressed}
           type="SECONDARY"
-        />
+        /> */}
         <CustomButton
           text="Back to Sign In"
           onPress={onSignInPressed}

@@ -5,7 +5,7 @@ import CustomButton from '../../components/CustomButton';
 import SocialSignInButtons from '../../components/SocialSignInButtons';
 import {useNavigation} from '@react-navigation/native';
 import {useForm} from 'react-hook-form';
-import {Auth} from 'aws-amplify';
+
 const NewPasswordScreen = () => {
   const {control, handleSubmit} = useForm();
   const navigation = useNavigation();
