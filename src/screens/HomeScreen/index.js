@@ -15,7 +15,7 @@ const HomeScreen = () => {
     setSearch(search);
   };
   const handleStorePress = () => {
-    setBgColor('store');
+    setBgColor('messages');
   };
   const handleNewPostPress = () => {
     setBgColor('newPost');
@@ -57,17 +57,17 @@ const HomeScreen = () => {
     // </NavigationContainer>
     <View style={{flex: 1}}>
       <View style={{alignItems: 'center', width: '100%'}}>
-        <Text>Store</Text>
+        <Text style={styles.appButtonContainer}>Store</Text>
       </View>
       <View style={styles.container}>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={[
               styles.button,
-              {backgroundColor: bgColor === 'store' ? '#FF597B' : '#B2B2B2'},
+              {backgroundColor: bgColor === 'messages' ? '#FF597B' : '#B2B2B2'},
             ]}
             onPress={handleStorePress}>
-            <Text style={styles.text}>Store</Text>
+            <Text style={styles.text}>Chat</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[
@@ -119,6 +119,20 @@ const styles = {
       width: 0,
       height: 0,
     },
+  },
+  appButtonContainer: {
+    elevation: 8,
+    backgroundColor: '#009688',
+    // borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+    width: '100%',
+    borderBottomRightRadius: 6,
+    fontSize: 18,
+    color: '#fff',
+    fontWeight: 'bold',
+    alignSelf: 'center',
+    textAlign: 'center',
   },
   container: {
     flex: 1,
