@@ -6,9 +6,9 @@
  * @flow strict-local
  */
 
-import React from 'react';
-import {SafeAreaView, StyleSheet, Text} from 'react-native';
-import Navigation from './src/navigation';
+import React from "react";
+import { SafeAreaView, StyleSheet, Text } from "react-native";
+import Navigation from "./src/navigation";
 /* $FlowFixMe[missing-local-annot] The type annotation(s) required by Flow's
  * LTI update could not be added via codemod */
 const App = () => {
@@ -23,7 +23,7 @@ const App = () => {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#F9FBFC',
+    backgroundColor: "#F9FBFC",
   },
 });
 

@@ -6,23 +6,21 @@ import {
   StyleSheet,
   SafeAreaView,
   Image,
-  fetch,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { decode } from "base-64";
 import CustomButton from "../../components/CustomButton";
 import { useNavigation } from "@react-navigation/native";
-import { launchImageLibrary } from "react-native-image-picker";
 import { storage } from "../../../firebase";
 import { auth } from "../../../firebase";
-// import * as ImagePicker from "expo-image-picker";
+import * as ImagePicker from "expo-image-picker";
 import {
   getStorage,
   ref,
   uploadBytesResumable,
   getDownloadURL,
   uploadString,
-  putString,
+  uploadBytes,
 } from "firebase/storage";
 
 const PostScreen = () => {
@@ -30,73 +28,50 @@ const PostScreen = () => {
   const [uid, setUid] = useState({});
   const [isImageSelected, setIsImageSelected] = useState(false);
   const navigation = useNavigation();
-  const chooseFile = (type) => {
-    // console.warn(auth);
+  const [image, setImage] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-    // setUid(auth["currentUser"]["uid"]);
-    // console.warn(uid);
-    let options = {
-      mediaType: type,
-      maxWidth: 300,
-      maxHeight: 550,
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
       quality: 1,
-      includeBase64: true,
-    };
-    launchImageLibrary(options, (response) => {
-      // console.log('Response = ', response);
-
-      if (response.didCancel) {
-        Alert.alert("User cancelled camera picker");
-        return;
-      } else if (response.errorCode == "permission") {
-        Alert.alert("Permission not satisfied");
-        return;
-      } else if (response.errorCode == "others") {
-        Alert.alert(response.errorMessage);
-        return;
-      }
-      setFilePath(response);
-      setIsImageSelected(true);
-      // console.warn(filePath['assets'][0]['uri']);
     });
+
+    // console.warn(result["assets"]);
+
+    if (!result.canceled) {
+      setImage(result["assets"][0]["uri"]);
+      setIsImageSelected(true);
+    }
   };
   useEffect(() => {
     // setUid(auth['currentUser']['uid']);
   }, [filePath]);
 
   const uploadPhoto = async () => {
-    console.warn(filePath);
-    // var base64 = require('base-64');
-    // var image = base64.decode(filePath['assets'][0]['base64']);
-    // console.warn(image);
-    // const metadata = {
-    //   contentType: filePath['assets'][0]['type'],
-    // };
-    // try {
-    //   const storageRef = ref(storage, filePath['assets'][0]['fileName']);
-    //   try {
-    //     await storageRef.putString(image, 'base64', {contentType: 'image/jpg'});
-    //   } catch (e) {
-    //     console.warn(e.message);
-    //   }
-    //   setFilePath(null);
-    // } catch (e) {
-    //   console.warn(e.message);
-    // }
+    // console.warn(filePath);
+    console.warn(image);
+    const response = await fetch(image);
+    const blob = await response.blob();
 
-    // 'file' comes from the Blob or File API
+    const storageRef = ref(storage, "some-child");
+    await uploadBytesResumable(storageRef, blob);
+    return await getDownloadURL(reference);
   };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Text style={styles.appButtonContainer}>Post New Item!</Text>
       <View style={styles.container}>
-        {/* <Image source={{uri: filePath.uri}} style={styles.imageStyle} /> */}
+        <Image source={{ uri: image }} style={styles.imageStyle} />
         {/* <Text style={styles.textStyle}>{filePath.uri}</Text> */}
         <TouchableOpacity
           activeOpacity={0.5}
           style={styles.buttonStyle}
-          onPress={() => chooseFile("photo")}
+          onPress={pickImage}
         >
           <Text style={styles.textStyle}>Choose Image</Text>
         </TouchableOpacity>
@@ -120,10 +95,10 @@ const PostScreen = () => {
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.5}
-          style={styles.buttonStyle}
+          style={styles.backButtonStyle}
           onPress={() => navigation.navigate("Home")}
         >
-          <Text style={styles.textStyle}>Back to store</Text>
+          <Text style={styles.backTextStyle}>Back to store</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -149,6 +124,11 @@ const styles = StyleSheet.create({
   textStyle: {
     padding: 10,
     color: "white",
+    textAlign: "center",
+  },
+  backTextStyle: {
+    padding: 10,
+    color: "gray",
     textAlign: "center",
   },
   textStyleDisabled: {
@@ -177,6 +157,14 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     width: 250,
     borderRadius: 8,
+  },
+  backButtonStyle: {
+    alignItems: "center",
+    color: "gray",
+    padding: 5,
+    marginVertical: 10,
+    width: 250,
+    // borderRadius: 8,
   },
   imageStyle: {
     width: 200,
