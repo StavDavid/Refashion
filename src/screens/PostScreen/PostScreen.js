@@ -6,6 +6,7 @@ import {
   StyleSheet,
   SafeAreaView,
   Image,
+  TextInput,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { decode } from "base-64";
@@ -30,7 +31,7 @@ const PostScreen = () => {
   const navigation = useNavigation();
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  const [itemName, setItemName] = useState({});
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -46,6 +47,14 @@ const PostScreen = () => {
       setImage(result["assets"][0]["uri"]);
       setIsImageSelected(true);
     }
+    try {
+      await setUid(auth["currentUser"]["uid"]);
+      console.warn(uid);
+    } catch (e) {
+      Alert.alert("Oops", e.message);
+    }
+
+    console.warn(result["assets"]);
   };
   useEffect(() => {
     // setUid(auth['currentUser']['uid']);
@@ -54,17 +63,32 @@ const PostScreen = () => {
   const uploadPhoto = async () => {
     // console.warn(filePath);
     console.warn(image);
-    const response = await fetch(image);
-    const blob = await response.blob();
+    let x = Math.random() * 10;
+    let name = itemName + "." + uid + "/" + String(x);
+    try {
+      const response = await fetch(image);
+      const blob = await response.blob();
 
-    const storageRef = ref(storage, "some-child");
-    await uploadBytesResumable(storageRef, blob);
-    return await getDownloadURL(reference);
+      const storageRef = ref(storage, name);
+      // await uploadBytesResumable(storageRef, blob);
+      await uploadBytes(storageRef, blob).then((snapshot) => {
+        Alert.alert("Uploaded a blob or file!");
+      });
+      return await getDownloadURL(reference);
+    } catch (e) {
+      Alert.alert("Oops", e.message);
+    }
   };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Text style={styles.appButtonContainer}>Post New Item!</Text>
+      <TextInput
+        onChangeText={(text) => setItemName(text)}
+        value={itemName}
+        style={{ padding: 10 }}
+        placeholder="Item Name"
+      />
       <View style={styles.container}>
         <Image source={{ uri: image }} style={styles.imageStyle} />
         {/* <Text style={styles.textStyle}>{filePath.uri}</Text> */}
