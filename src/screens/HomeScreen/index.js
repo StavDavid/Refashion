@@ -1,38 +1,40 @@
-import React, {useState} from 'react';
-import {View, Text, ScrollView, TouchableOpacity} from 'react-native';
-import {getAuth, signOut} from 'firebase/auth';
-import {auth} from '../../../firebase';
-import {useNavigation} from '@react-navigation/native';
-import {NavigationContainer} from '@react-navigation/native';
-import PostScreen from '../PostScreen';
-import CustomButton from '../../components/CustomButton';
-
+import React, { useState } from "react";
+import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { getAuth, signOut } from "firebase/auth";
+import { auth } from "../../../firebase";
+import { useNavigation } from "@react-navigation/native";
+import { NavigationContainer } from "@react-navigation/native";
+import PostScreen from "../PostScreen";
+import CustomButton from "../../components/CustomButton";
+import { AntDesign } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { SimpleLineIcons } from "@expo/vector-icons";
 const HomeScreen = () => {
-  const [bgColor, setBgColor] = useState('');
-  const [search, setSearch] = useState('');
+  const [bgColor, setBgColor] = useState("");
+  const [search, setSearch] = useState("");
 
-  const updateSearch = search => {
+  const updateSearch = (search) => {
     setSearch(search);
   };
   const handleStorePress = () => {
-    setBgColor('messages');
+    setBgColor("messages");
   };
   const handleNewPostPress = () => {
-    setBgColor('newPost');
-    navigation.navigate('PostScreen');
+    setBgColor("newPost");
+    navigation.navigate("PostScreen");
   };
   const handleSettingPress = () => {
-    setBgColor('settings');
+    setBgColor("settings");
   };
   const handleSignOutPress = () => {
-    setBgColor('signOut');
+    setBgColor("signOut");
     signOutUser();
   };
   const navigation = useNavigation();
   const signOutUser = async () => {
     try {
       await signOut(auth).then(() => {
-        navigation.navigate('SignIn');
+        navigation.navigate("SignIn");
       });
     } catch (error) {
       console.warn(error.message);
@@ -55,8 +57,8 @@ const HomeScreen = () => {
     // <NavigationContainer independent={true}>
     //   <Navbar></Navbar>
     // </NavigationContainer>
-    <View style={{flex: 1}}>
-      <View style={{alignItems: 'center', width: '100%'}}>
+    <View style={{ flex: 1 }}>
+      <View style={{ alignItems: "center", width: "100%" }}>
         <Text style={styles.appButtonContainer}>Store</Text>
       </View>
       <View style={styles.container}>
@@ -64,34 +66,51 @@ const HomeScreen = () => {
           <TouchableOpacity
             style={[
               styles.button,
-              {backgroundColor: bgColor === 'messages' ? '#FF597B' : '#B2B2B2'},
+              {
+                backgroundColor: bgColor === "messages" ? "#FF597B" : "#B2B2B2",
+              },
             ]}
-            onPress={handleStorePress}>
-            <Text style={styles.text}>Chat</Text>
+            onPress={handleStorePress}
+          >
+            <MaterialCommunityIcons
+              name="chat-plus-outline"
+              size={24}
+              color="white"
+            />
           </TouchableOpacity>
           <TouchableOpacity
             style={[
               styles.button,
-              {backgroundColor: bgColor === 'newPost' ? '#FF597B' : '#B2B2B2'},
+              {
+                backgroundColor: bgColor === "newPost" ? "#FF597B" : "#B2B2B2",
+              },
             ]}
-            onPress={handleNewPostPress}>
-            <Text style={styles.postText}>+</Text>
+            onPress={handleNewPostPress}
+          >
+            {/* <Text style={styles.postText}>+</Text> */}
+            <AntDesign name="pluscircleo" size={24} color="white" />
           </TouchableOpacity>
           <TouchableOpacity
             style={[
               styles.button,
-              {backgroundColor: bgColor === 'settings' ? '#FF597B' : '#B2B2B2'},
+              {
+                backgroundColor: bgColor === "settings" ? "#FF597B" : "#B2B2B2",
+              },
             ]}
-            onPress={handleSettingPress}>
-            <Text style={styles.text}>Settings</Text>
+            onPress={handleSettingPress}
+          >
+            <SimpleLineIcons name="settings" size={24} color="white" />
           </TouchableOpacity>
           <TouchableOpacity
             style={[
               styles.button,
-              {backgroundColor: bgColor === 'signOut' ? '#FF597B' : '#B2B2B2'},
+              {
+                backgroundColor: bgColor === "signOut" ? "#FF597B" : "#B2B2B2",
+              },
             ]}
-            onPress={handleSignOutPress}>
-            <Text style={styles.text}>Sign Out</Text>
+            onPress={handleSignOutPress}
+          >
+            <AntDesign name="logout" size={24} color="white" />
           </TouchableOpacity>
         </View>
       </View>
@@ -103,16 +122,16 @@ export default HomeScreen;
 
 const styles = {
   button: {
-    backgroundColor: '#B2B2B2',
+    backgroundColor: "#B2B2B2",
     padding: 10,
     gep: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: 70,
-    width: '23%',
+    width: "23%",
     height: 60,
     elevation: 5,
-    shadowColor: 'black',
+    shadowColor: "black",
     shadowOpacity: 0.3,
     shadowRadius: 3,
     shadowOffset: {
@@ -122,38 +141,38 @@ const styles = {
   },
   appButtonContainer: {
     elevation: 8,
-    backgroundColor: '#009688',
+    backgroundColor: "#009688",
     // borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 5,
-    width: '100%',
+    width: "100%",
     borderBottomRightRadius: 6,
     fontSize: 18,
-    color: '#fff',
-    fontWeight: 'bold',
-    alignSelf: 'center',
-    textAlign: 'center',
+    color: "#fff",
+    fontWeight: "bold",
+    alignSelf: "center",
+    textAlign: "center",
   },
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
+    alignItems: "center",
+    justifyContent: "flex-end",
     padding: 20,
   },
   buttonContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
-    width: '100%',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-evenly",
+    width: "100%",
   },
   text: {
     fontSize: 14,
-    color: 'white',
-    textAlign: 'center',
+    color: "white",
+    textAlign: "center",
   },
   postText: {
     fontSize: 25,
-    color: 'white',
-    textAlign: 'center',
+    color: "white",
+    textAlign: "center",
   },
 };

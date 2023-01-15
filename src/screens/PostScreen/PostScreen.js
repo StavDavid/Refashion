@@ -52,16 +52,13 @@ const PostScreen = () => {
     }
     try {
       await setUid(auth["currentUser"]["uid"]);
-      console.warn(uid);
+      // console.warn(uid);
     } catch (e) {
       Alert.alert("Oops", e.message);
     }
 
-    console.warn(result["assets"]);
+    // console.warn(result["assets"]);
   };
-  useEffect(() => {
-    // setUid(auth['currentUser']['uid']);
-  }, [filePath]);
 
   const uploadPhoto = async (data) => {
     // console.warn(filePath);
@@ -77,6 +74,7 @@ const PostScreen = () => {
       // await uploadBytesResumable(storageRef, blob);
       await uploadBytes(storageRef, blob).then((snapshot) => {
         Alert.alert("Uploaded!");
+        navigation.navigate("Home");
       });
       return await getDownloadURL(storageRef);
     } catch (e) {
