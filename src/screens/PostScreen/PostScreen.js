@@ -23,6 +23,8 @@ import {
   uploadString,
   uploadBytes,
 } from "firebase/storage";
+import { useForm } from "react-hook-form";
+import CustomInput from "../../components/CustomInput";
 
 const PostScreen = () => {
   const [filePath, setFilePath] = useState({});
@@ -32,6 +34,7 @@ const PostScreen = () => {
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [itemName, setItemName] = useState({});
+  const { control, handleSubmit } = useForm();
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -60,11 +63,12 @@ const PostScreen = () => {
     // setUid(auth['currentUser']['uid']);
   }, [filePath]);
 
-  const uploadPhoto = async () => {
+  const uploadPhoto = async (data) => {
     // console.warn(filePath);
-    console.warn(image);
-    let x = Math.random() * 10;
-    let name = itemName + "." + uid + "/" + String(x);
+    const { itemName } = data;
+    const timeElapsed = Date.now();
+    const today = new Date(timeElapsed);
+    let name = data.itemName + "." + uid + "/" + today.toISOString();
     try {
       const response = await fetch(image);
       const blob = await response.blob();
@@ -72,9 +76,9 @@ const PostScreen = () => {
       const storageRef = ref(storage, name);
       // await uploadBytesResumable(storageRef, blob);
       await uploadBytes(storageRef, blob).then((snapshot) => {
-        Alert.alert("Uploaded a blob or file!");
+        Alert.alert("Uploaded!");
       });
-      return await getDownloadURL(reference);
+      return await getDownloadURL(storageRef);
     } catch (e) {
       Alert.alert("Oops", e.message);
     }
@@ -82,13 +86,25 @@ const PostScreen = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <Text style={styles.appButtonContainer}>Post New Item!</Text>
-      <TextInput
+      <Text style={styles.appButtonContainer}>Post a New Item!</Text>
+      <CustomInput
+        name="itemName"
+        placeholder="Item Name"
+        control={control}
+        rules={{
+          required: "Item Name is required",
+          // minLength: {
+          //   value: 8,
+          //   message: "Password should be at least 8 charachters long",
+          // },
+        }}
+      />
+      {/* <TextInput
         onChangeText={(text) => setItemName(text)}
         value={itemName}
         style={{ padding: 10 }}
         placeholder="Item Name"
-      />
+      /> */}
       <View style={styles.container}>
         <Image source={{ uri: image }} style={styles.imageStyle} />
         {/* <Text style={styles.textStyle}>{filePath.uri}</Text> */}
@@ -106,7 +122,7 @@ const PostScreen = () => {
             styles.buttonStyle,
             isImageSelected ? null : styles.buttonDisabled,
           ]}
-          onPress={uploadPhoto}
+          onPress={handleSubmit(uploadPhoto)}
         >
           <Text
             style={[
