@@ -25,7 +25,7 @@ import {
 } from "firebase/storage";
 import { useForm } from "react-hook-form";
 import CustomInput from "../../components/CustomInput";
-
+import { Feather } from "@expo/vector-icons";
 const PostScreen = () => {
   const [filePath, setFilePath] = useState({});
   const [uid, setUid] = useState({});
@@ -127,15 +127,24 @@ const PostScreen = () => {
           ]}
           onPress={handleSubmit(uploadPhoto)}
         >
-          <Text
-            style={[
-              styles.textStyle,
-              isImageSelected ? null : styles.textStyleDisabled,
-            ]}
-            text={loading ? "Loading..." : "Upload"}
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
-            {loading ? "Loading..." : "Upload"}
-          </Text>
+            <Feather name="upload" size={24} color="#393E46" />
+            <Text
+              style={[
+                styles.textStyle,
+                isImageSelected ? null : styles.textStyleDisabled,
+              ]}
+              text={loading ? "Loading..." : "Upload"}
+            >
+              {loading ? "Loading..." : "Upload"}
+            </Text>
+          </View>
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.5}
@@ -203,8 +212,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 2,
     width: "100%",
-    borderRadius: 100,
-    borderBottomRightRadius: 6,
+    // borderRadius: 100,
+    // borderBottomRightRadius: 6,
     fontSize: 12,
     color: "#fff",
     fontWeight: "bold",
