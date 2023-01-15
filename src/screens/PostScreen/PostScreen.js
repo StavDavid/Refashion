@@ -36,6 +36,13 @@ const PostScreen = () => {
   const [itemName, setItemName] = useState({});
   const { control, handleSubmit } = useForm();
   const pickImage = async () => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      Alert.alert("Oops", "Permissions must be granted to upload a photo");
+      return;
+    }
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -63,6 +70,7 @@ const PostScreen = () => {
   const uploadPhoto = async (data) => {
     // console.warn(filePath);
     const { itemName } = data;
+    setLoading(true);
     const timeElapsed = Date.now();
     const today = new Date(timeElapsed);
     let name = data.itemName + "." + uid + "/" + today.toISOString();
@@ -85,16 +93,13 @@ const PostScreen = () => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Text style={styles.appButtonContainer}>Post a New Item!</Text>
+      <Text style={styles.appButtonContainer1}>Choose Item Name:</Text>
       <CustomInput
         name="itemName"
         placeholder="Item Name"
         control={control}
         rules={{
           required: "Item Name is required",
-          // minLength: {
-          //   value: 8,
-          //   message: "Password should be at least 8 charachters long",
-          // },
         }}
       />
       {/* <TextInput
@@ -127,8 +132,9 @@ const PostScreen = () => {
               styles.textStyle,
               isImageSelected ? null : styles.textStyleDisabled,
             ]}
+            text={loading ? "Loading..." : "Upload"}
           >
-            Upload
+            {loading ? "Loading..." : "Upload"}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -149,7 +155,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
-    backgroundColor: "#fff",
+    backgroundColor: "white",
     alignItems: "center",
     justifyContent: "flex-end",
   },
@@ -183,6 +189,23 @@ const styles = StyleSheet.create({
     width: "100%",
     borderBottomRightRadius: 6,
     fontSize: 18,
+    color: "#fff",
+    fontWeight: "bold",
+    alignSelf: "center",
+    textAlign: "center",
+  },
+  appButtonContainer1: {
+    // elevation: 8,
+    backgroundColor: "#B2B2B2",
+    borderColor: "white",
+    marginTop: "2%",
+    gap: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 2,
+    width: "100%",
+    borderRadius: 100,
+    borderBottomRightRadius: 6,
+    fontSize: 12,
     color: "#fff",
     fontWeight: "bold",
     alignSelf: "center",
