@@ -13,7 +13,8 @@ import { decode } from "base-64";
 import CustomButton from "../../components/CustomButton";
 import { useNavigation } from "@react-navigation/native";
 import { storage } from "../../../firebase";
-import { auth } from "../../../firebase";
+import { auth, db } from "../../../firebase";
+import { doc, updateDoc, arrayUnion, setDoc } from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
 import {
   getStorage,
@@ -22,6 +23,7 @@ import {
   getDownloadURL,
   uploadString,
   uploadBytes,
+  updateMetadata,
 } from "firebase/storage";
 import { useForm } from "react-hook-form";
 import CustomInput from "../../components/CustomInput";
@@ -73,17 +75,42 @@ const PostScreen = () => {
     setLoading(true);
     const timeElapsed = Date.now();
     const today = new Date(timeElapsed);
-    let name = data.itemName + "." + uid + "/" + today.toISOString();
+    let name =
+      data.itemName + "." + uid + "." + today.toISOString().slice(0, 16);
     try {
       const response = await fetch(image);
       const blob = await response.blob();
 
       const storageRef = ref(storage, name);
       // await uploadBytesResumable(storageRef, blob);
-      await uploadBytes(storageRef, blob).then((snapshot) => {
-        Alert.alert("Uploaded!");
-        navigation.navigate("Home");
-      });
+      await uploadBytes(storageRef, blob)
+        .then((snapshot) => {
+          Alert.alert("Uploaded!");
+          navigation.navigate("Home");
+        })
+        .then(() => {
+          const imageRef = doc(db, `users/${auth.currentUser.uid}`);
+          const itemRef = ref(storage, name);
+          const metadata = {
+            customMetadata: {
+              item_name: data.itemName,
+              item_description: data.itemDescription,
+              item_uid: name,
+            },
+          };
+          updateMetadata(itemRef, metadata)
+            .then((metadata) => {
+              // Updated metadata for 'images/forest.jpg' is returned in the Promise
+            })
+            .catch((error) => {
+              // Uh-oh, an error occurred!
+            });
+          updateDoc(imageRef, { items: arrayUnion(name) }, { merge: true });
+          setDoc(doc(db, "items", name), {
+            item_name: data.itemName,
+            item_description: data.itemDescription,
+          });
+        });
       return await getDownloadURL(storageRef);
     } catch (e) {
       Alert.alert("Oops", e.message);
@@ -93,13 +120,21 @@ const PostScreen = () => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Text style={styles.appButtonContainer}>Post a New Item!</Text>
-      <Text style={styles.appButtonContainer1}>Choose Item Name:</Text>
+      <Text style={styles.appButtonContainer1}>Post Data:</Text>
       <CustomInput
         name="itemName"
         placeholder="Item Name"
         control={control}
         rules={{
           required: "Item Name is required",
+        }}
+      />
+      <CustomInput
+        name="itemDescription"
+        placeholder="Item Description"
+        control={control}
+        rules={{
+          required: "Item Description is required",
         }}
       />
       {/* <TextInput

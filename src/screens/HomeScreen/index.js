@@ -1,7 +1,9 @@
-import React, { useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
 import { getAuth, signOut } from "firebase/auth";
+import { storage } from "../../../firebase";
 import { auth } from "../../../firebase";
+import { getDownloadURL } from "firebase/storage";
 import { useNavigation } from "@react-navigation/native";
 import { NavigationContainer } from "@react-navigation/native";
 import PostScreen from "../PostScreen";
@@ -9,9 +11,35 @@ import CustomButton from "../../components/CustomButton";
 import { AntDesign } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { SimpleLineIcons } from "@expo/vector-icons";
+import { getStorage, ref, listAll, getMetadata } from "firebase/storage";
 const HomeScreen = () => {
   const [bgColor, setBgColor] = useState("");
   const [search, setSearch] = useState("");
+  const [photos, setPhotos] = useState([]);
+  const [gallery, setGallery] = useState([]);
+  const [names, setNames] = useState([]);
+
+  useEffect(() => {
+    const getGalleryImages = async () => {
+      const storageRef = ref(storage, "/");
+      const images = await listAll(storageRef);
+      const urls = await Promise.all(
+        images.items.map((imageRef) => getDownloadURL(imageRef))
+      );
+      const metadata = await Promise.all(
+        images.items.map((imageRef) => getMetadata(imageRef))
+      );
+      const namesWithMetadata = await Promise.all(
+        images.items.map(async (imageRef) => {
+          const metadata = await getMetadata(imageRef);
+          return metadata.customMetadata;
+        })
+      );
+      setNames(namesWithMetadata);
+      setGallery(urls);
+    };
+    getGalleryImages();
+  }, []);
 
   const updateSearch = (search) => {
     setSearch(search);
@@ -60,6 +88,26 @@ const HomeScreen = () => {
     <View style={{ flex: 1 }}>
       <View style={{ alignItems: "center", width: "100%" }}>
         <Text style={styles.appButtonContainer}>Store</Text>
+      </View>
+      <View style={styles.gallery}>
+        {gallery.map((image, index) => (
+          <View key={index} style={styles.item}>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("ItemDetails", {
+                  Name: names[index].item_name,
+                  Description: names[index].item_description,
+                  Uri: image,
+                  Uid: names[index].item_uid,
+                })
+              }
+            >
+              <Image source={{ uri: image }} style={styles.image} />
+              <Text>Name: {names[index].item_name}</Text>
+              <Text>Description: {names[index].item_description}</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
       </View>
       <View style={styles.container}>
         <View style={styles.buttonContainer}>
@@ -174,5 +222,29 @@ const styles = {
     fontSize: 25,
     color: "white",
     textAlign: "center",
+  },
+  gallery: {
+    flex: 1,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    padding: 15,
+  },
+  image: {
+    width: 300,
+    height: 200,
+    margin: 5,
+    shadowColor: "#171717",
+    shadowOffset: { width: -2, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  item: {
+    shadowColor: "#171717",
+    shadowOffset: { width: -2, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
   },
 };

@@ -1,15 +1,16 @@
-import React, {useEffect, useState} from 'react';
-import {View, ActivityIndicator} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import SignInScreen from '../screens/SignInScreen';
-import SignUpScreen from '../screens/SignUpScreen';
-import ConfirmEmailScreen from '../screens/ConfirmEmailScreen';
-import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
-import NewPasswordScreen from '../screens/NewPasswordScreen';
-import HomeScreen from '../screens/HomeScreen';
-import PostScreen from '../screens/PostScreen';
+import React, { useEffect, useState } from "react";
+import { View, ActivityIndicator } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import SignInScreen from "../screens/SignInScreen";
+import SignUpScreen from "../screens/SignUpScreen";
+import ConfirmEmailScreen from "../screens/ConfirmEmailScreen";
+import ForgotPasswordScreen from "../screens/ForgotPasswordScreen";
+import NewPasswordScreen from "../screens/NewPasswordScreen";
+import HomeScreen from "../screens/HomeScreen";
+import PostScreen from "../screens/PostScreen";
+import ItemDetails from "../screens/ItemDetails";
 const Stack = createNativeStackNavigator();
 
 const Navigation = () => {
@@ -18,7 +19,7 @@ const Navigation = () => {
   const checkUser = async () => {
     try {
       const auth = getAuth();
-      const authUser = onAuthStateChanged(auth, user => {
+      const authUser = onAuthStateChanged(auth, (user) => {
         if (user) {
           // User is signed in, see docs for a list of available properties
           // https://firebase.google.com/docs/reference/js/firebase.User
@@ -40,8 +41,8 @@ const Navigation = () => {
   }, []);
 
   useEffect(() => {
-    const listener = data => {
-      if (data.payload.event === 'signIn' || data.payload.event === 'signOut') {
+    const listener = (data) => {
+      if (data.payload.event === "signIn" || data.payload.event === "signOut") {
         checkUser();
       }
     };
@@ -52,7 +53,7 @@ const Navigation = () => {
   if (user) {
     return (
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{headerShown: false}}>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Home" component={HomeScreen} />
         </Stack.Navigator>
       </NavigationContainer>
@@ -61,7 +62,7 @@ const Navigation = () => {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="SignIn" component={SignInScreen} />
         <Stack.Screen name="SignUp" component={SignUpScreen} />
@@ -74,6 +75,7 @@ const Navigation = () => {
           component={ForgotPasswordScreen}
         />
         <Stack.Screen name="PostScreen" component={PostScreen} />
+        <Stack.Screen name="ItemDetails" component={ItemDetails} />
       </Stack.Navigator>
     </NavigationContainer>
   );

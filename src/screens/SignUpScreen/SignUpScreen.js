@@ -1,39 +1,46 @@
-import {View, Text, StyleSheet, ScrollView, Alert} from 'react-native';
-import React, {useState} from 'react';
-import CustomInput from '../../components/CustomInput';
-import CustomButton from '../../components/CustomButton';
-import SocialSignInButtons from '../../components/SocialSignInButtons';
-import {useNavigation} from '@react-navigation/native';
-import {useForm} from 'react-hook-form';
-import {getAuth, createUserWithEmailAndPassword} from 'firebase/auth';
-import {auth} from '../../../firebase';
+import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
+import React, { useState } from "react";
+import CustomInput from "../../components/CustomInput";
+import CustomButton from "../../components/CustomButton";
+import SocialSignInButtons from "../../components/SocialSignInButtons";
+import { useNavigation } from "@react-navigation/native";
+import { useForm } from "react-hook-form";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "../../../firebase";
+import { doc, setDoc } from "firebase/firestore";
 EMAIL_REGEX = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-
+const PHONE_NUMBER_REGEX = /^05[0-9]-\d{7}$/;
 const SignUpScreen = () => {
-  const {control, handleSubmit, watch} = useForm();
-  const pwd = watch('password');
+  const { control, handleSubmit, watch } = useForm();
+  const pwd = watch("password");
   const navigation = useNavigation();
-  const onRegisterPressed = async data => {
-    const {username, password, email, name} = data;
+  const onRegisterPressed = async (data) => {
+    const { username, password, email, name } = data;
     try {
       const user = await createUserWithEmailAndPassword(
         auth,
         data.email,
-        data.password,
-      );
-      navigation.navigate('ConfirmEmailScreen');
+        data.password
+      ).then(async () => {
+        await setDoc(doc(db, "users", auth.currentUser.uid), {
+          email: data.email,
+          phone_number: data.phone,
+          full_name: data.name,
+        });
+      });
+      navigation.navigate("ConfirmEmailScreen");
     } catch (e) {
-      Alert.alert('Oops', e.message);
+      Alert.alert("Oops", e.message);
     }
   };
   const onSignInPressed = () => {
-    navigation.navigate('SignIn');
+    navigation.navigate("SignIn");
   };
   const onTermsOfUsePressed = () => {
-    console.warn('TermsOfUse');
+    console.warn("TermsOfUse");
   };
   const onPrivacyPolicyPressed = () => {
-    console.warn('PrivacyPolicy');
+    console.warn("PrivacyPolicy");
   };
   return (
     <ScrollView showVerticalScrollIndicator={false}>
@@ -75,7 +82,34 @@ const SignUpScreen = () => {
           name="email"
           placeholder="Email"
           control={control}
-          rules={{pattern: {value: EMAIL_REGEX, message: 'Email is invalid'}}}
+          rules={{
+            pattern: { value: EMAIL_REGEX, message: "Email is invalid" },
+          }}
+        />
+        <CustomInput
+          name="name"
+          placeholder="Full Name"
+          control={control}
+          rules={{
+            required: "Full Name is required",
+            minLength: {
+              value: 5,
+              message:
+                "Full Name should be at least 4 charachters long with space",
+            },
+          }}
+        />
+        <CustomInput
+          name="phone"
+          placeholder="Phone Number"
+          control={control}
+          rules={{
+            required: "Phone number is required",
+            pattern: {
+              value: PHONE_NUMBER_REGEX,
+              message: "Phone number is invalid",
+            },
+          }}
         />
         <CustomInput
           name="password"
@@ -83,10 +117,10 @@ const SignUpScreen = () => {
           control={control}
           secureTextEntry
           rules={{
-            required: 'Password is required',
+            required: "Password is required",
             minLength: {
               value: 8,
-              message: 'Password should be at least 8 charachters long',
+              message: "Password should be at least 8 charachters long",
             },
           }}
         />
@@ -96,7 +130,7 @@ const SignUpScreen = () => {
           control={control}
           secureTextEntry
           rules={{
-            validate: value => value === pwd || 'Password do not match',
+            validate: (value) => value === pwd || "Password do not match",
           }}
         />
         <CustomButton
@@ -104,13 +138,13 @@ const SignUpScreen = () => {
           onPress={handleSubmit(onRegisterPressed)}
         />
         <Text style={styles.text}>
-          By registering, you confirm that you accept our{' '}
+          By registering, you confirm that you accept our{" "}
           <Text style={styles.link} onPress={onTermsOfUsePressed}>
             Terms of Use
-          </Text>{' '}
+          </Text>{" "}
           and
           <Text style={styles.link} onPress={onPrivacyPolicyPressed}>
-            {' '}
+            {" "}
             Privacy Policy
           </Text>
         </Text>
@@ -127,21 +161,21 @@ const SignUpScreen = () => {
 
 const styles = StyleSheet.create({
   root: {
-    alignItems: 'center',
+    alignItems: "center",
     padding: 20,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#051C60',
+    fontWeight: "bold",
+    color: "#051C60",
     margin: 10,
   },
   text: {
-    color: 'gray',
+    color: "gray",
     marginVertical: 10,
   },
   link: {
-    color: '#FDB075',
+    color: "#FDB075",
   },
 });
 
