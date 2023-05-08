@@ -4,7 +4,7 @@ import { getAuth, signOut } from "firebase/auth";
 import { storage } from "../../../firebase";
 import { auth } from "../../../firebase";
 import { getDownloadURL } from "firebase/storage";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { NavigationContainer } from "@react-navigation/native";
 import PostScreen from "../PostScreen";
 import CustomButton from "../../components/CustomButton";
@@ -18,28 +18,31 @@ const HomeScreen = () => {
   const [photos, setPhotos] = useState([]);
   const [gallery, setGallery] = useState([]);
   const [names, setNames] = useState([]);
+  const isFocused = useIsFocused();
 
   useEffect(() => {
-    const getGalleryImages = async () => {
-      const storageRef = ref(storage, "/");
-      const images = await listAll(storageRef);
-      const urls = await Promise.all(
-        images.items.map((imageRef) => getDownloadURL(imageRef))
-      );
-      const metadata = await Promise.all(
-        images.items.map((imageRef) => getMetadata(imageRef))
-      );
-      const namesWithMetadata = await Promise.all(
-        images.items.map(async (imageRef) => {
-          const metadata = await getMetadata(imageRef);
-          return metadata.customMetadata;
-        })
-      );
-      setNames(namesWithMetadata);
-      setGallery(urls);
-    };
-    getGalleryImages();
-  }, []);
+    if (isFocused) {
+      const getGalleryImages = async () => {
+        const storageRef = ref(storage, "/");
+        const images = await listAll(storageRef);
+        const urls = await Promise.all(
+          images.items.map((imageRef) => getDownloadURL(imageRef))
+        );
+        const metadata = await Promise.all(
+          images.items.map((imageRef) => getMetadata(imageRef))
+        );
+        const namesWithMetadata = await Promise.all(
+          images.items.map(async (imageRef) => {
+            const metadata = await getMetadata(imageRef);
+            return metadata.customMetadata;
+          })
+        );
+        setNames(namesWithMetadata);
+        setGallery(urls);
+      };
+      getGalleryImages();
+    }
+  }, [isFocused]);
 
   const updateSearch = (search) => {
     setSearch(search);
@@ -89,26 +92,28 @@ const HomeScreen = () => {
       <View style={{ alignItems: "center", width: "100%" }}>
         <Text style={styles.appButtonContainer}>Store</Text>
       </View>
-      <View style={styles.gallery}>
-        {gallery.map((image, index) => (
-          <View key={index} style={styles.item}>
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate("ItemDetails", {
-                  Name: names[index].item_name,
-                  Description: names[index].item_description,
-                  Uri: image,
-                  Uid: names[index].item_uid,
-                })
-              }
-            >
-              <Image source={{ uri: image }} style={styles.image} />
-              <Text>Name: {names[index].item_name}</Text>
-              <Text>Description: {names[index].item_description}</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
-      </View>
+      <ScrollView showVerticalScrollIndicator={false}>
+        <View style={styles.gallery}>
+          {gallery.map((image, index) => (
+            <View key={index} style={styles.item}>
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate("ItemDetails", {
+                    Name: names[index].item_name,
+                    Description: names[index].item_description,
+                    Uri: image,
+                    Uid: names[index].item_uid,
+                  })
+                }
+              >
+                <Image source={{ uri: image }} style={styles.image} />
+                <Text>Name: {names[index].item_name}</Text>
+                <Text>Description: {names[index].item_description}</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
       <View style={styles.container}>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
@@ -205,13 +210,13 @@ const styles = {
     flex: 1,
     alignItems: "center",
     justifyContent: "flex-end",
-    padding: 20,
+    padding: 40,
   },
   buttonContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-evenly",
-    width: "100%",
+    width: "120%",
   },
   text: {
     fontSize: 14,

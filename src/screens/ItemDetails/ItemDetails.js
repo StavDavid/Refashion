@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   Image,
   TextInput,
+  ScrollView,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { decode } from "base-64";
@@ -16,6 +17,7 @@ import { storage } from "../../../firebase";
 import { auth, db } from "../../../firebase";
 import { doc, updateDoc, arrayUnion, setDoc } from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
+import { FontAwesome } from "@expo/vector-icons";
 import {
   getStorage,
   ref,
@@ -43,6 +45,9 @@ const ItemDetails = ({ route }) => {
           <Text>Description: {Description}</Text>
         </View>
       </View>
+      <TouchableOpacity style={styles.button}>
+        <FontAwesome name="cart-plus" size={24} color="black" />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -54,6 +59,26 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     alignItems: "center",
     justifyContent: "flex-end",
+  },
+  button: {
+    backgroundColor: "#62CDFF",
+    padding: 15,
+    gep: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "center",
+    marginTop: "auto",
+    borderRadius: 70,
+    width: "40%",
+    height: 60,
+    elevation: 5,
+    shadowColor: "black",
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
   },
   titleText: {
     fontSize: 22,
