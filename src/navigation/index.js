@@ -11,6 +11,8 @@ import NewPasswordScreen from "../screens/NewPasswordScreen";
 import HomeScreen from "../screens/HomeScreen";
 import PostScreen from "../screens/PostScreen";
 import ItemDetails from "../screens/ItemDetails";
+import Settings from "../screens/SettingsScreen";
+import History from "../screens/HistoryScreen";
 const Stack = createNativeStackNavigator();
 
 const Navigation = () => {
@@ -76,6 +78,8 @@ const Navigation = () => {
         />
         <Stack.Screen name="PostScreen" component={PostScreen} />
         <Stack.Screen name="ItemDetails" component={ItemDetails} />
+        <Stack.Screen name="Settings" component={Settings} />
+        <Stack.Screen name="History" component={History} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -15,9 +15,11 @@ import CustomButton from "../../components/CustomButton";
 import { useNavigation } from "@react-navigation/native";
 import { storage } from "../../../firebase";
 import { auth, db } from "../../../firebase";
-import { doc, updateDoc, arrayUnion, setDoc } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion, setDoc, getDoc } from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
 import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome5 } from "@expo/vector-icons";
+
 import {
   getStorage,
   ref,
@@ -26,29 +28,39 @@ import {
   uploadString,
   uploadBytes,
   updateMetadata,
+  connectStorageEmulator,
 } from "firebase/storage";
 import { useForm } from "react-hook-form";
 import CustomInput from "../../components/CustomInput";
 import { Feather } from "@expo/vector-icons";
 
-const ItemDetails = ({ route }) => {
-  const { Name, Description, Uri, Uid } = route.params;
+const Settings = () => {
+  const navigation = useNavigation();
+  const [name, setName] = useState("");
+
+  const handleHistoryPress = () => {
+    navigation.navigate("History");
+  };
+
+  useEffect(() => {
+    const getData = async () => {
+      const docRef = doc(db, `users/${auth.currentUser.uid}`);
+      const docSnap = await getDoc(docRef);
+      setName(docSnap.data().full_name);
+    };
+    getData();
+  }, []);
+
   return (
     <View style={{ flex: 1 }}>
       <View style={{ alignItems: "center", width: "100%" }}>
-        <Text style={styles.appButtonContainer}>Item</Text>
+        <Text style={styles.appButtonContainer}>Settings</Text>
+        <Text style={styles.appButtonContainer1}>Hi, {name}</Text>
+        <TouchableOpacity style={styles.button} onPress={handleHistoryPress}>
+          <FontAwesome5 name="history" size={24} color="black" />
+          <Text>Upload History</Text>
+        </TouchableOpacity>
       </View>
-      <Text style={styles.appButtonContainer1}>{Name}</Text>
-      <View style={styles.gallery}>
-        <View>
-          <Image source={{ uri: Uri }} style={styles.image} />
-          <Text>Description: {Description}</Text>
-        </View>
-      </View>
-      <TouchableOpacity style={styles.button}>
-        <FontAwesome name="cart-plus" size={24} color="black" />
-        <Text>Purchase</Text>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -68,7 +80,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     alignSelf: "center",
-    marginBottom: 20,
+    marginTop: 30,
     borderRadius: 70,
     width: "40%",
     height: 60,
@@ -174,4 +186,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ItemDetails;
+export default Settings;

@@ -56,6 +56,7 @@ const HomeScreen = () => {
   };
   const handleSettingPress = () => {
     setBgColor("settings");
+    navigation.navigate("Settings");
   };
   const handleSignOutPress = () => {
     setBgColor("signOut");

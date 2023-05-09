@@ -12,12 +12,13 @@ import {
 import React, { useState, useEffect } from "react";
 import { decode } from "base-64";
 import CustomButton from "../../components/CustomButton";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { storage } from "../../../firebase";
 import { auth, db } from "../../../firebase";
-import { doc, updateDoc, arrayUnion, setDoc } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion, setDoc, getDoc } from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
 import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome5 } from "@expo/vector-icons";
 import {
   getStorage,
   ref,
@@ -26,29 +27,70 @@ import {
   uploadString,
   uploadBytes,
   updateMetadata,
+  connectStorageEmulator,
+  listAll,
+  getMetadata,
 } from "firebase/storage";
 import { useForm } from "react-hook-form";
 import CustomInput from "../../components/CustomInput";
 import { Feather } from "@expo/vector-icons";
 
-const ItemDetails = ({ route }) => {
-  const { Name, Description, Uri, Uid } = route.params;
+const History = () => {
+  const navigation = useNavigation();
+  const [items, setItems] = useState("");
+  const [gallery, setGallery] = useState([]);
+  const [names, setNames] = useState([]);
+  const isFocused = useIsFocused();
+  useEffect(() => {
+    if (isFocused) {
+      const getData = async () => {
+        const docRef = doc(db, `users/${auth.currentUser.uid}`);
+        const docSnap = await getDoc(docRef);
+        setItems(docSnap.data().items);
+        getGalleryImages();
+      };
+      getData();
+    }
+  }, [[isFocused]]);
+
+  const getGalleryImages = async () => {
+    const storageRef = ref(storage, "/");
+    const images = await listAll(storageRef);
+    const urls = await Promise.all(
+      images.items.map((imageRef) => getDownloadURL(imageRef))
+    );
+    const metadata = await Promise.all(
+      images.items.map((imageRef) => getMetadata(imageRef))
+    );
+    const namesWithMetadata = await Promise.all(
+      images.items.map(async (imageRef) => {
+        const metadata = await getMetadata(imageRef);
+        return metadata.customMetadata;
+      })
+    );
+    setNames(namesWithMetadata);
+    const filteredUrls = urls.filter((url, index) =>
+      items.includes(namesWithMetadata[index].item_uid)
+    );
+    setGallery(filteredUrls);
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <View style={{ alignItems: "center", width: "100%" }}>
-        <Text style={styles.appButtonContainer}>Item</Text>
+        <Text style={styles.appButtonContainer}>History</Text>
       </View>
-      <Text style={styles.appButtonContainer1}>{Name}</Text>
-      <View style={styles.gallery}>
-        <View>
-          <Image source={{ uri: Uri }} style={styles.image} />
-          <Text>Description: {Description}</Text>
+      <ScrollView showVerticalScrollIndicator={false}>
+        <View style={styles.gallery}>
+          {gallery.map((image, index) => (
+            <View key={index} style={styles.item}>
+              <Image source={{ uri: image }} style={styles.image} />
+              <Text>Name: {names[index].item_name}</Text>
+              <Text>Description: {names[index].item_description}</Text>
+            </View>
+          ))}
         </View>
-      </View>
-      <TouchableOpacity style={styles.button}>
-        <FontAwesome name="cart-plus" size={24} color="black" />
-        <Text>Purchase</Text>
-      </TouchableOpacity>
+      </ScrollView>
     </View>
   );
 };
@@ -68,7 +110,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     alignSelf: "center",
-    marginBottom: 20,
+    marginTop: 30,
     borderRadius: 70,
     width: "40%",
     height: 60,
@@ -162,16 +204,16 @@ const styles = StyleSheet.create({
   },
   gallery: {
     flex: 1,
-    flexDirection: "row",
+    flexDirection: "column",
     flexWrap: "wrap",
     justifyContent: "center",
     padding: 15,
   },
   image: {
     width: 300,
-    height: 300,
+    height: 250,
     margin: 5,
   },
 });
 
-export default ItemDetails;
+export default History;
