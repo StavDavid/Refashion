@@ -13,6 +13,8 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import { getStorage, ref, listAll, getMetadata } from "firebase/storage";
 import DropDownPicker from "react-native-dropdown-picker";
+import moment from "moment";
+import { Card } from "react-native-elements";
 const HomeScreen = () => {
   const [bgColor, setBgColor] = useState("");
   const [search, setSearch] = useState("");
@@ -25,6 +27,7 @@ const HomeScreen = () => {
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [subcategoryOpen, setSubcategoryOpen] = useState(false);
   const [showSubcategory, setShowSubcategory] = useState(false);
+  const [timestamps, setTimestamps] = useState([]);
   const [value, setValue] = useState(null);
   const [items, setItems] = useState([
     {
@@ -100,18 +103,26 @@ const HomeScreen = () => {
             return metadata.customMetadata;
           })
         );
+        const imageTimestamps = metadata.map((item) => {
+          const timestamp = moment(item.updated).format("DD.MM.YY HH:mm");
+          return timestamp;
+        });
+
         setNames(namesWithMetadata);
         setGallery(urls);
+        setTimestamps(imageTimestamps);
       };
+
       getGalleryImages();
+      setBgColor("messages");
     }
   }, [isFocused]);
-
   const updateSearch = (search) => {
     setSearch(search);
   };
   const handleStorePress = () => {
     setBgColor("messages");
+    navigation.navigate("Home");
   };
   const handleNewPostPress = () => {
     setBgColor("newPost");
@@ -136,27 +147,15 @@ const HomeScreen = () => {
     }
   };
 
-  const newPost = () => {
-    // navigation.navigate('PostScreen');
-  };
-
-  const home = () => {
-    // navigation.navigate('PostScreen');
-  };
-
-  const settings = () => {
-    // navigation.navigate('PostScreen');
-  };
-
   return (
     // <NavigationContainer independent={true}>
     //   <Navbar></Navbar>
     // </NavigationContainer>
     <View style={{ flex: 1 }}>
-      <View style={{ alignItems: "center", width: "100%" }}>
-        <Text style={styles.appButtonContainer}>Store</Text>
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerTitle}>Store</Text>
       </View>
-      <View style={{ flexDirection: "row" }}>
+      <View style={{ flexDirection: "row", justifyContent: "center" }}>
         <DropDownPicker
           open={categoryOpen}
           value={selectedCategory}
@@ -170,7 +169,7 @@ const HomeScreen = () => {
             setSelectedSubcategory("");
             setShowSubcategory(true);
           }}
-          containerStyle={{ flex: 1, marginRight: 5 }}
+          containerStyle={{ flex: 1, marginLeft: 5 }}
         />
 
         {showSubcategory && (
@@ -185,7 +184,7 @@ const HomeScreen = () => {
             setOpen={setSubcategoryOpen}
             setValue={setSelectedSubcategory}
             setItems={setItems}
-            containerStyle={{ flex: 1, marginLeft: 5 }}
+            containerStyle={{ flex: 1, marginRight: 5 }}
           />
         )}
       </View>
@@ -201,7 +200,7 @@ const HomeScreen = () => {
 
             if (categoryMatches && subcategoryMatches) {
               return (
-                <View key={index} style={styles.item}>
+                <Card key={index} containerStyle={styles.cardContainer}>
                   <TouchableOpacity
                     onPress={() =>
                       navigation.navigate("ItemDetails", {
@@ -209,14 +208,23 @@ const HomeScreen = () => {
                         Description: names[index].item_description,
                         Uri: image,
                         Uid: names[index].item_uid,
+                        Email: names[index].email,
+                        Phone: names[index].phone_number,
                       })
                     }
                   >
                     <Image source={{ uri: image }} style={styles.image} />
-                    <Text>Name: {names[index].item_name}</Text>
-                    <Text>Description: {names[index].item_description}</Text>
+                    <Text style={styles.cardTitle}>
+                      {names[index].item_name}
+                    </Text>
+                    <Text style={styles.cardDescription}>
+                      {names[index].item_description}
+                    </Text>
+                    <Text style={styles.cardTimestamp}>
+                      {timestamps[index]}
+                    </Text>
                   </TouchableOpacity>
-                </View>
+                </Card>
               );
             }
 
@@ -235,11 +243,7 @@ const HomeScreen = () => {
             ]}
             onPress={handleStorePress}
           >
-            <MaterialCommunityIcons
-              name="chat-plus-outline"
-              size={24}
-              color="white"
-            />
+            <AntDesign name="appstore1" size={24} color="white" />
           </TouchableOpacity>
           <TouchableOpacity
             style={[
@@ -287,11 +291,11 @@ const styles = {
   button: {
     backgroundColor: "#B2B2B2",
     padding: 10,
-    gep: 15,
+    margin: 10,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 70,
-    width: "23%",
+    width: 60,
     height: 60,
     elevation: 5,
     shadowColor: "black",
@@ -305,11 +309,10 @@ const styles = {
   appButtonContainer: {
     elevation: 8,
     backgroundColor: "#009688",
-    // borderRadius: 10,
+    borderRadius: 6,
     paddingVertical: 10,
     paddingHorizontal: 5,
     width: "100%",
-    borderBottomRightRadius: 6,
     fontSize: 18,
     color: "#fff",
     fontWeight: "bold",
@@ -326,7 +329,8 @@ const styles = {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-evenly",
-    width: "120%",
+    width: "100%",
+    marginBottom: 20,
   },
   text: {
     fontSize: 14,
@@ -349,6 +353,7 @@ const styles = {
     width: 300,
     height: 200,
     margin: 5,
+    borderRadius: 10,
     shadowColor: "#171717",
     shadowOffset: { width: -2, height: 4 },
     shadowOpacity: 0.2,
@@ -361,5 +366,58 @@ const styles = {
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 3,
+  },
+  cardContainer: {
+    margin: 5,
+    borderRadius: 10,
+    shadowColor: "#171717",
+    shadowOffset: { width: -2, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  cardDescription: {
+    fontSize: 14,
+    color: "gray",
+  },
+  cardTimestamp: {
+    fontSize: 12,
+    color: "gray",
+    marginTop: 5,
+    alignSelf: "flex-end",
+    marginTop: "auto",
+  },
+  headerContainer: {
+    backgroundColor: "#FF597B",
+    paddingHorizontal: 20,
+    paddingTop: 20, // Decreased the top padding to lower the height
+    paddingBottom: 10, // Decreased the bottom padding to lower the height
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center", // Center the title horizontally
+    borderBottomWidth: 1,
+    borderBottomColor: "#B2B2B2",
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    elevation: 5,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "white",
+    textAlign: "center", // Center the title vertically
   },
 };

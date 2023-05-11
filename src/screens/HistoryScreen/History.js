@@ -15,6 +15,7 @@ import CustomButton from "../../components/CustomButton";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { storage } from "../../../firebase";
 import { auth, db } from "../../../firebase";
+import { Card } from "react-native-elements";
 import {
   doc,
   updateDoc,
@@ -53,16 +54,40 @@ const History = () => {
   const isFocused = useIsFocused();
 
   useEffect(() => {
-    if (isFocused) {
-      const getData = async () => {
-        const docRef = doc(db, `users/${auth.currentUser.uid}`);
-        const docSnap = await getDoc(docRef);
-        setItems(docSnap.data().items);
-        getGalleryImages();
-      };
-      getData();
-    }
+    const getData = async () => {
+      const docRef = doc(db, `users/${auth.currentUser.uid}`);
+      const docSnap = await getDoc(docRef);
+      setItems(docSnap.data().items);
+    };
+
+    getData();
   }, [isFocused]);
+
+  useEffect(() => {
+    const getGalleryImages = async () => {
+      const storageRef = ref(storage, "/");
+      const images = await listAll(storageRef);
+      const urls = await Promise.all(
+        images.items.map((imageRef) => getDownloadURL(imageRef))
+      );
+      const metadata = await Promise.all(
+        images.items.map((imageRef) => getMetadata(imageRef))
+      );
+      const namesWithMetadata = await Promise.all(
+        images.items.map(async (imageRef) => {
+          const metadata = await getMetadata(imageRef);
+          return metadata.customMetadata;
+        })
+      );
+      setNames(namesWithMetadata);
+      const filteredUrls = urls.filter((url, index) =>
+        items.includes(namesWithMetadata[index].item_uid)
+      );
+      setGallery(filteredUrls);
+    };
+
+    getGalleryImages();
+  }, [items]);
 
   const deleteItem = async (itemUid) => {
     Alert.alert("Confirmation", "Are you sure you want to delete this item?", [
@@ -94,50 +119,26 @@ const History = () => {
     }
   };
 
-  const getGalleryImages = async () => {
-    const storageRef = ref(storage, "/");
-    const images = await listAll(storageRef);
-    const urls = await Promise.all(
-      images.items.map((imageRef) => getDownloadURL(imageRef))
-    );
-    const metadata = await Promise.all(
-      images.items.map((imageRef) => getMetadata(imageRef))
-    );
-    const namesWithMetadata = await Promise.all(
-      images.items.map(async (imageRef) => {
-        const metadata = await getMetadata(imageRef);
-        return metadata.customMetadata;
-      })
-    );
-    setNames(namesWithMetadata);
-    const filteredUrls = urls.filter((url, index) =>
-      items.includes(namesWithMetadata[index].item_uid)
-    );
-    setGallery(filteredUrls);
-  };
-
   return (
     <View style={{ flex: 1 }}>
-      <View style={{ alignItems: "center", width: "100%" }}>
-        <Text style={styles.appButtonContainer}>History</Text>
-      </View>
+      <Text style={styles.appButtonContainer}>Upload History</Text>
       <ScrollView showVerticalScrollIndicator={false}>
         <View style={styles.gallery}>
           {gallery.map((image, index) => (
-            <View key={index} style={styles.item}>
+            <Card key={index} containerStyle={styles.card}>
+              <Text style={styles.cardTitle}>{names[index].item_name}</Text>
               <Image source={{ uri: image }} style={styles.image} />
-              <View style={styles.itemDetails}>
-                <View>
-                  <Text>Name: {names[index].item_name}</Text>
-                  <Text>Description: {names[index].item_description}</Text>
-                </View>
+              <View style={styles.cardContent}>
+                <Text style={styles.itemDescription}>
+                  {names[index].item_description}
+                </Text>
                 <TouchableOpacity
                   onPress={() => deleteItem(names[index].item_uid)}
                 >
                   <AntDesign name="delete" size={24} color="black" />
                 </TouchableOpacity>
               </View>
-            </View>
+            </Card>
           ))}
         </View>
       </ScrollView>
@@ -195,18 +196,27 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   appButtonContainer: {
-    elevation: 8,
-    backgroundColor: "#009688",
-    // borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    width: "100%",
-    borderBottomRightRadius: 6,
-    fontSize: 18,
-    color: "#fff",
+    backgroundColor: "#FF597B",
+    paddingHorizontal: 20,
+    paddingTop: 20, // Decreased the top padding to lower the height
+    paddingBottom: 10, // Decreased the bottom padding to lower the height
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center", // Center the title horizontally
+    borderBottomWidth: 1,
+    borderBottomColor: "#B2B2B2",
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    elevation: 5,
+    fontSize: 22,
     fontWeight: "bold",
-    alignSelf: "center",
-    textAlign: "center",
+    color: "white",
+    textAlign: "center", // Center the title vertically
   },
   appButtonContainer1: {
     // elevation: 8,
@@ -254,7 +264,7 @@ const styles = StyleSheet.create({
   },
   gallery: {
     flex: 1,
-    flexDirection: "column",
+    flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
     padding: 15,
@@ -269,6 +279,56 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  cardContainer: {
+    margin: 5,
+    borderRadius: 10,
+    shadowColor: "#171717",
+    shadowOffset: { width: -2, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  cardDescription: {
+    fontSize: 14,
+    color: "gray",
+  },
+  cardContent: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    marginTop: 10,
+  },
+  headerContainer: {
+    backgroundColor: "#FF597B",
+    paddingHorizontal: 20,
+    paddingTop: 20, // Decreased the top padding to lower the height
+    paddingBottom: 10, // Decreased the bottom padding to lower the height
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center", // Center the title horizontally
+    borderBottomWidth: 1,
+    borderBottomColor: "#B2B2B2",
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    elevation: 5,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "white",
+    textAlign: "center", // Center the title vertically
   },
 });
 

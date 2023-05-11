@@ -14,7 +14,7 @@ import CustomButton from "../../components/CustomButton";
 import { useNavigation } from "@react-navigation/native";
 import { storage } from "../../../firebase";
 import { auth, db } from "../../../firebase";
-import { doc, updateDoc, arrayUnion, setDoc } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion, setDoc, getDoc } from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
 import DropDownPicker from "react-native-dropdown-picker";
 import {
@@ -129,50 +129,48 @@ const PostScreen = () => {
   };
 
   const uploadPhoto = async (data) => {
-    // console.warn(filePath);
     const { itemName } = data;
     setLoading(true);
     const timeElapsed = Date.now();
     const today = new Date(timeElapsed);
-    let name =
+    const name =
       data.itemName + "." + uid + "." + today.toISOString().slice(0, 16);
+
     try {
       const response = await fetch(image);
       const blob = await response.blob();
 
       const storageRef = ref(storage, name);
-      // await uploadBytesResumable(storageRef, blob);
-      await uploadBytes(storageRef, blob)
-        .then((snapshot) => {
-          Alert.alert("Uploaded!");
-          navigation.navigate("Home");
-        })
-        .then(() => {
-          const imageRef = doc(db, `users/${auth.currentUser.uid}`);
-          const itemRef = ref(storage, name);
-          const metadata = {
-            customMetadata: {
-              item_name: data.itemName,
-              item_description: data.itemDescription,
-              item_uid: name,
-              category: selectedCategory,
-              subcategory: selectedSubcategory,
-            },
-          };
-          updateMetadata(itemRef, metadata)
-            .then((metadata) => {
-              // Updated metadata for 'images/forest.jpg' is returned in the Promise
-            })
-            .catch((error) => {
-              // Uh-oh, an error occurred!
-            });
-          updateDoc(imageRef, { items: arrayUnion(name) }, { merge: true });
-          setDoc(doc(db, "items", name), {
-            item_name: data.itemName,
-            item_description: data.itemDescription,
-          });
-        });
-      return await getDownloadURL(storageRef);
+      await uploadBytes(storageRef, blob);
+
+      const userDocRef = doc(db, "users", auth.currentUser.uid);
+      const userDocSnap = await getDoc(userDocRef);
+      const userData = userDocSnap.data();
+
+      const itemRef = ref(storage, name);
+      const metadata = {
+        customMetadata: {
+          item_name: data.itemName,
+          item_description: data.itemDescription,
+          item_uid: name,
+          category: selectedCategory,
+          subcategory: selectedSubcategory,
+          phone_number: userData.phone_number,
+          email: userData.email,
+        },
+      };
+      await updateMetadata(itemRef, metadata);
+
+      const imageRef = doc(db, `users/${auth.currentUser.uid}`);
+      await updateDoc(imageRef, { items: arrayUnion(name) }, { merge: true });
+
+      await setDoc(doc(db, "items", name), {
+        item_name: data.itemName,
+        item_description: data.itemDescription,
+      });
+
+      Alert.alert("Uploaded!");
+      navigation.navigate("Home");
     } catch (e) {
       Alert.alert("Oops", e.message);
     }
@@ -181,7 +179,6 @@ const PostScreen = () => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Text style={styles.appButtonContainer}>Post a New Item!</Text>
-      <Text style={styles.appButtonContainer1}>Post Data:</Text>
       <CustomInput
         name="itemName"
         placeholder="Item Name"
@@ -313,18 +310,27 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   appButtonContainer: {
-    elevation: 8,
-    backgroundColor: "#009688",
-    // borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    width: "100%",
-    borderBottomRightRadius: 6,
-    fontSize: 18,
-    color: "#fff",
+    backgroundColor: "#FF597B",
+    paddingHorizontal: 20,
+    paddingTop: 20, // Decreased the top padding to lower the height
+    paddingBottom: 10, // Decreased the bottom padding to lower the height
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center", // Center the title horizontally
+    borderBottomWidth: 1,
+    borderBottomColor: "#B2B2B2",
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    elevation: 5,
+    fontSize: 24,
     fontWeight: "bold",
-    alignSelf: "center",
-    textAlign: "center",
+    color: "white",
+    textAlign: "center", // Center the title vertically
   },
   appButtonContainer1: {
     // elevation: 8,
@@ -387,5 +393,30 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 10,
+  },
+  headerContainer: {
+    backgroundColor: "#FF597B",
+    paddingHorizontal: 20,
+    paddingTop: 20, // Decreased the top padding to lower the height
+    paddingBottom: 10, // Decreased the bottom padding to lower the height
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center", // Center the title horizontally
+    borderBottomWidth: 1,
+    borderBottomColor: "#B2B2B2",
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    elevation: 5,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "white",
+    textAlign: "center", // Center the title vertically
   },
 });

@@ -53,9 +53,9 @@ const Settings = () => {
 
   return (
     <View style={{ flex: 1 }}>
+      <Text style={styles.appButtonContainer}>Settings</Text>
+      <Text style={styles.appButtonContainer1}>Hi, {name}</Text>
       <View style={{ alignItems: "center", width: "100%" }}>
-        <Text style={styles.appButtonContainer}>Settings</Text>
-        <Text style={styles.appButtonContainer1}>Hi, {name}</Text>
         <TouchableOpacity style={styles.button} onPress={handleHistoryPress}>
           <FontAwesome5 name="history" size={24} color="black" />
           <Text>Upload History</Text>
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   button: {
-    backgroundColor: "#62CDFF",
+    backgroundColor: "white",
     padding: 15,
     gep: 15,
     alignItems: "center",
@@ -133,23 +133,30 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   appButtonContainer: {
-    elevation: 8,
-    backgroundColor: "#009688",
-    // borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    width: "100%",
-    borderBottomRightRadius: 6,
-    fontSize: 18,
-    color: "#fff",
+    backgroundColor: "#FF597B",
+    paddingHorizontal: 20,
+    paddingTop: 20, // Decreased the top padding to lower the height
+    paddingBottom: 10, // Decreased the bottom padding to lower the height
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center", // Center the title horizontally
+    borderBottomWidth: 1,
+    borderBottomColor: "#B2B2B2",
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    elevation: 5,
+    fontSize: 22,
     fontWeight: "bold",
-    alignSelf: "center",
-    textAlign: "center",
+    color: "white",
+    textAlign: "center", // Center the title vertically
   },
   appButtonContainer1: {
     // elevation: 8,
-    backgroundColor: "#B2B2B2",
-    borderColor: "white",
     marginTop: "2%",
     gap: 10,
     paddingVertical: 10,
@@ -157,8 +164,8 @@ const styles = StyleSheet.create({
     width: "100%",
     // borderRadius: 100,
     // borderBottomRightRadius: 6,
-    fontSize: 12,
-    color: "#fff",
+    fontSize: 18,
+    color: "black",
     fontWeight: "bold",
     alignSelf: "center",
     textAlign: "center",
