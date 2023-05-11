@@ -12,6 +12,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import { getStorage, ref, listAll, getMetadata } from "firebase/storage";
+import DropDownPicker from "react-native-dropdown-picker";
 const HomeScreen = () => {
   const [bgColor, setBgColor] = useState("");
   const [search, setSearch] = useState("");
@@ -19,7 +20,69 @@ const HomeScreen = () => {
   const [gallery, setGallery] = useState([]);
   const [names, setNames] = useState([]);
   const isFocused = useIsFocused();
-
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedSubcategory, setSelectedSubcategory] = useState("");
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [subcategoryOpen, setSubcategoryOpen] = useState(false);
+  const [showSubcategory, setShowSubcategory] = useState(false);
+  const [value, setValue] = useState(null);
+  const [items, setItems] = useState([
+    {
+      label: "All",
+      value: "",
+      subcategories: [],
+    },
+    {
+      label: "Men's Clothing",
+      value: "mens_clothing",
+      subcategories: [
+        { label: "Shirts", value: "mens_shirts" },
+        { label: "Pants", value: "mens_pants" },
+        { label: "Jackets", value: "mens_jackets" },
+        { label: "Suits", value: "mens_suits" },
+      ],
+    },
+    {
+      label: "Women's Clothing",
+      value: "womens_clothing",
+      subcategories: [
+        { label: "Dresses", value: "womens_dresses" },
+        { label: "Tops", value: "womens_tops" },
+        { label: "Bottoms", value: "womens_bottoms" },
+        { label: "Outerwear", value: "womens_outerwear" },
+      ],
+    },
+    {
+      label: "Kids' Clothing",
+      value: "kids_clothing",
+      subcategories: [
+        { label: "Tops", value: "kids_tops" },
+        { label: "Bottoms", value: "kids_bottoms" },
+        { label: "Dresses", value: "kids_dresses" },
+        { label: "Outerwear", value: "kids_outerwear" },
+      ],
+    },
+    {
+      label: "Shoes",
+      value: "shoes",
+      subcategories: [
+        { label: "Men's Shoes", value: "mens_shoes" },
+        { label: "Women's Shoes", value: "womens_shoes" },
+        { label: "Kids' Shoes", value: "kids_shoes" },
+        { label: "Athletic Shoes", value: "athletic_shoes" },
+      ],
+    },
+    {
+      label: "Accessories",
+      value: "accessories",
+      subcategories: [
+        { label: "Hats", value: "hats" },
+        { label: "Bags", value: "bags" },
+        { label: "Belts", value: "belts" },
+        { label: "Jewelry", value: "jewelry" },
+      ],
+    },
+  ]);
   useEffect(() => {
     if (isFocused) {
       const getGalleryImages = async () => {
@@ -93,26 +156,72 @@ const HomeScreen = () => {
       <View style={{ alignItems: "center", width: "100%" }}>
         <Text style={styles.appButtonContainer}>Store</Text>
       </View>
+      <View style={{ flexDirection: "row" }}>
+        <DropDownPicker
+          open={categoryOpen}
+          value={selectedCategory}
+          items={items}
+          setOpen={setCategoryOpen}
+          setValue={setSelectedCategory}
+          setItems={setItems}
+          placeholder="Select a category"
+          onChangeValue={(value) => {
+            setSelectedCategory(value);
+            setSelectedSubcategory("");
+            setShowSubcategory(true);
+          }}
+          containerStyle={{ flex: 1, marginRight: 5 }}
+        />
+
+        {showSubcategory && (
+          <DropDownPicker
+            open={subcategoryOpen}
+            value={selectedSubcategory}
+            items={
+              items.find((item) => item.value === selectedCategory)
+                ?.subcategories || []
+            }
+            placeholder="Select a subcategory"
+            setOpen={setSubcategoryOpen}
+            setValue={setSelectedSubcategory}
+            setItems={setItems}
+            containerStyle={{ flex: 1, marginLeft: 5 }}
+          />
+        )}
+      </View>
       <ScrollView showVerticalScrollIndicator={false}>
         <View style={styles.gallery}>
-          {gallery.map((image, index) => (
-            <View key={index} style={styles.item}>
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate("ItemDetails", {
-                    Name: names[index].item_name,
-                    Description: names[index].item_description,
-                    Uri: image,
-                    Uid: names[index].item_uid,
-                  })
-                }
-              >
-                <Image source={{ uri: image }} style={styles.image} />
-                <Text>Name: {names[index].item_name}</Text>
-                <Text>Description: {names[index].item_description}</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
+          {gallery.map((image, index) => {
+            const categoryMatches =
+              selectedCategory === "" ||
+              names[index].category === selectedCategory;
+            const subcategoryMatches =
+              selectedSubcategory === "" ||
+              names[index].subcategory === selectedSubcategory;
+
+            if (categoryMatches && subcategoryMatches) {
+              return (
+                <View key={index} style={styles.item}>
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate("ItemDetails", {
+                        Name: names[index].item_name,
+                        Description: names[index].item_description,
+                        Uri: image,
+                        Uid: names[index].item_uid,
+                      })
+                    }
+                  >
+                    <Image source={{ uri: image }} style={styles.image} />
+                    <Text>Name: {names[index].item_name}</Text>
+                    <Text>Description: {names[index].item_description}</Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            }
+
+            return null;
+          })}
         </View>
       </ScrollView>
       <View style={styles.container}>

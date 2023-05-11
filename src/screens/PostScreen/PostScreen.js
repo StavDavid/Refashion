@@ -16,6 +16,7 @@ import { storage } from "../../../firebase";
 import { auth, db } from "../../../firebase";
 import { doc, updateDoc, arrayUnion, setDoc } from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
+import DropDownPicker from "react-native-dropdown-picker";
 import {
   getStorage,
   ref,
@@ -36,7 +37,65 @@ const PostScreen = () => {
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [itemName, setItemName] = useState({});
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedSubcategory, setSelectedSubcategory] = useState("");
   const { control, handleSubmit } = useForm();
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [subcategoryOpen, setSubcategoryOpen] = useState(false);
+  const [showSubcategory, setShowSubcategory] = useState(false);
+  const [value, setValue] = useState(null);
+  const [items, setItems] = useState([
+    {
+      label: "Men's Clothing",
+      value: "mens_clothing",
+      subcategories: [
+        { label: "Shirts", value: "mens_shirts" },
+        { label: "Pants", value: "mens_pants" },
+        { label: "Jackets", value: "mens_jackets" },
+        { label: "Suits", value: "mens_suits" },
+      ],
+    },
+    {
+      label: "Women's Clothing",
+      value: "womens_clothing",
+      subcategories: [
+        { label: "Dresses", value: "womens_dresses" },
+        { label: "Tops", value: "womens_tops" },
+        { label: "Bottoms", value: "womens_bottoms" },
+        { label: "Outerwear", value: "womens_outerwear" },
+      ],
+    },
+    {
+      label: "Kids' Clothing",
+      value: "kids_clothing",
+      subcategories: [
+        { label: "Tops", value: "kids_tops" },
+        { label: "Bottoms", value: "kids_bottoms" },
+        { label: "Dresses", value: "kids_dresses" },
+        { label: "Outerwear", value: "kids_outerwear" },
+      ],
+    },
+    {
+      label: "Shoes",
+      value: "shoes",
+      subcategories: [
+        { label: "Men's Shoes", value: "mens_shoes" },
+        { label: "Women's Shoes", value: "womens_shoes" },
+        { label: "Kids' Shoes", value: "kids_shoes" },
+        { label: "Athletic Shoes", value: "athletic_shoes" },
+      ],
+    },
+    {
+      label: "Accessories",
+      value: "accessories",
+      subcategories: [
+        { label: "Hats", value: "hats" },
+        { label: "Bags", value: "bags" },
+        { label: "Belts", value: "belts" },
+        { label: "Jewelry", value: "jewelry" },
+      ],
+    },
+  ]);
   const pickImage = async () => {
     const permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -96,6 +155,8 @@ const PostScreen = () => {
               item_name: data.itemName,
               item_description: data.itemDescription,
               item_uid: name,
+              category: selectedCategory,
+              subcategory: selectedSubcategory,
             },
           };
           updateMetadata(itemRef, metadata)
@@ -137,12 +198,39 @@ const PostScreen = () => {
           required: "Item Description is required",
         }}
       />
-      {/* <TextInput
-        onChangeText={(text) => setItemName(text)}
-        value={itemName}
-        style={{ padding: 10 }}
-        placeholder="Item Name"
-      /> */}
+      <View style={{ flexDirection: "row" }}>
+        <DropDownPicker
+          open={categoryOpen}
+          value={selectedCategory}
+          items={items}
+          setOpen={setCategoryOpen}
+          setValue={setSelectedCategory}
+          setItems={setItems}
+          placeholder="Select a category"
+          onChangeValue={(value) => {
+            setSelectedCategory(value);
+            setSelectedSubcategory("");
+            setShowSubcategory(true);
+          }}
+          containerStyle={{ flex: 1, marginRight: 5 }}
+        />
+
+        {showSubcategory && (
+          <DropDownPicker
+            open={subcategoryOpen}
+            value={selectedSubcategory}
+            items={
+              items.find((item) => item.value === selectedCategory)
+                ?.subcategories || []
+            }
+            placeholder="Select a subcategory"
+            setOpen={setSubcategoryOpen}
+            setValue={setSelectedSubcategory}
+            setItems={setItems}
+            containerStyle={{ flex: 1, marginLeft: 5 }}
+          />
+        )}
+      </View>
       <View style={styles.container}>
         <Image source={{ uri: image }} style={styles.imageStyle} />
         {/* <Text style={styles.textStyle}>{filePath.uri}</Text> */}
@@ -281,5 +369,23 @@ const styles = StyleSheet.create({
     backgroundColor: "#B2B2B2",
     color: "black",
     borderRadius: 8,
+  },
+  categoryContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  categoryText: {
+    marginRight: 10,
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  pickerStyle: {
+    flex: 1,
+    height: 40,
+    borderColor: "gray", // Update the border color
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
   },
 });

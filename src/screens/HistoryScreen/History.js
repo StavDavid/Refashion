@@ -15,7 +15,14 @@ import CustomButton from "../../components/CustomButton";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { storage } from "../../../firebase";
 import { auth, db } from "../../../firebase";
-import { doc, updateDoc, arrayUnion, setDoc, getDoc } from "firebase/firestore";
+import {
+  doc,
+  updateDoc,
+  arrayUnion,
+  setDoc,
+  getDoc,
+  arrayRemove,
+} from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
 import { FontAwesome } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
@@ -30,17 +37,21 @@ import {
   connectStorageEmulator,
   listAll,
   getMetadata,
+  deleteObject,
 } from "firebase/storage";
 import { useForm } from "react-hook-form";
 import CustomInput from "../../components/CustomInput";
 import { Feather } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
 
 const History = () => {
   const navigation = useNavigation();
   const [items, setItems] = useState("");
   const [gallery, setGallery] = useState([]);
   const [names, setNames] = useState([]);
+  const [refresh, setRefresh] = useState(false);
   const isFocused = useIsFocused();
+
   useEffect(() => {
     if (isFocused) {
       const getData = async () => {
@@ -51,7 +62,37 @@ const History = () => {
       };
       getData();
     }
-  }, [[isFocused]]);
+  }, [isFocused]);
+
+  const deleteItem = async (itemUid) => {
+    Alert.alert("Confirmation", "Are you sure you want to delete this item?", [
+      { text: "No", style: "cancel" },
+      { text: "Yes", onPress: () => handleDeleteConfirm(itemUid) },
+    ]);
+  };
+
+  const handleDeleteConfirm = async (itemUid) => {
+    const desertRef = ref(storage, "/" + itemUid);
+
+    // Delete the file
+    deleteObject(desertRef)
+      .then(() => {
+        Alert.alert("Item Deleted");
+      })
+      .catch((error) => {
+        Alert.alert("Oh no! an error occured");
+      });
+
+    try {
+      const userDocRef = doc(db, "users", auth.currentUser.uid);
+      await updateDoc(userDocRef, {
+        items: arrayRemove(itemUid),
+      });
+      setRefresh(!refresh);
+    } catch (error) {
+      // Handle error
+    }
+  };
 
   const getGalleryImages = async () => {
     const storageRef = ref(storage, "/");
@@ -85,8 +126,17 @@ const History = () => {
           {gallery.map((image, index) => (
             <View key={index} style={styles.item}>
               <Image source={{ uri: image }} style={styles.image} />
-              <Text>Name: {names[index].item_name}</Text>
-              <Text>Description: {names[index].item_description}</Text>
+              <View style={styles.itemDetails}>
+                <View>
+                  <Text>Name: {names[index].item_name}</Text>
+                  <Text>Description: {names[index].item_description}</Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => deleteItem(names[index].item_uid)}
+                >
+                  <AntDesign name="delete" size={24} color="black" />
+                </TouchableOpacity>
+              </View>
             </View>
           ))}
         </View>
@@ -211,8 +261,14 @@ const styles = StyleSheet.create({
   },
   image: {
     width: 300,
-    height: 250,
-    margin: 5,
+    height: 300,
+    margin: 10,
+  },
+  itemDetails: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
 });
 

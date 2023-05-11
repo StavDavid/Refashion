@@ -19,7 +19,7 @@ import { doc, updateDoc, arrayUnion, setDoc, getDoc } from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
 import { FontAwesome } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
-
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   getStorage,
   ref,
@@ -59,6 +59,24 @@ const Settings = () => {
         <TouchableOpacity style={styles.button} onPress={handleHistoryPress}>
           <FontAwesome5 name="history" size={24} color="black" />
           <Text>Upload History</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleHistoryPress}>
+          <FontAwesome5 name="opencart" size={24} color="black" />
+          <Text>Purchase History</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate("ForgotPasswordScreen")}
+        >
+          <MaterialCommunityIcons name="lock-reset" size={24} color="black" />
+          <Text>Reset Password</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          activeOpacity={0.5}
+          style={styles.backButtonStyle}
+          onPress={() => navigation.navigate("Home")}
+        >
+          <Text style={styles.backTextStyle}>Back to store</Text>
         </TouchableOpacity>
       </View>
     </View>
