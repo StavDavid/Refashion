@@ -108,9 +108,18 @@ const HomeScreen = () => {
           return timestamp;
         });
 
-        setNames(namesWithMetadata);
-        setGallery(urls);
-        setTimestamps(imageTimestamps);
+        // Filter out items with archive: "true"
+        const filteredNames = namesWithMetadata.filter(
+          (item) => item && item.archive !== "true"
+        );
+        const filteredUrls = filteredNames.map((_, index) => urls[index]);
+        const filteredTimestamps = filteredNames.map(
+          (_, index) => imageTimestamps[index]
+        );
+
+        setNames(filteredNames);
+        setGallery(filteredUrls);
+        setTimestamps(filteredTimestamps);
       };
 
       getGalleryImages();

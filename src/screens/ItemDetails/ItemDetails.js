@@ -7,11 +7,13 @@ import {
   Linking,
   Alert,
 } from "react-native";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { FontAwesome } from "@expo/vector-icons";
 import { Card } from "react-native-elements";
 import { auth, db } from "../../../firebase";
 import { doc, updateDoc, arrayUnion, setDoc, getDoc } from "firebase/firestore";
 const ItemDetails = ({ route }) => {
+  const navigation = useNavigation();
   const { Name, Description, Uri, Uid, Email, Phone } = route.params;
   const [showOptions, setShowOptions] = useState(false);
   const [showAdditionalButton, setShowAdditionalButton] = useState(false);
@@ -98,6 +100,13 @@ const ItemDetails = ({ route }) => {
             <Text>Confirm Purchase</Text>
           </TouchableOpacity>
         )}
+        <TouchableOpacity
+          activeOpacity={0.5}
+          style={styles.backButtonStyle}
+          onPress={() => navigation.navigate("Home")}
+        >
+          <Text style={styles.backTextStyle}>Back to store</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -201,7 +210,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     color: "gray",
     padding: 5,
-    marginVertical: 10,
+    marginVertical: 5,
     width: 250,
     // borderRadius: 8,
   },
@@ -269,14 +278,14 @@ const styles = StyleSheet.create({
   },
   additionalButton: {
     backgroundColor: "white",
-    padding: 15,
+    padding: 10,
     alignItems: "center",
     justifyContent: "center",
     alignSelf: "center",
-    marginBottom: 100,
+    marginBottom: 60,
     borderRadius: 8,
     width: "40%",
-    height: 60,
+    height: 40,
     elevation: 5,
     shadowColor: "black",
     shadowOpacity: 0.3,

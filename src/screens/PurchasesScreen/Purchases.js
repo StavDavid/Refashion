@@ -57,12 +57,13 @@ const Purchases = () => {
   const [showReportInput, setShowReportInput] = useState(false);
   const [reportInput, setReportInput] = useState("");
   const [selectedItemUid, setSelectedItemUid] = useState("");
-
+  const [userName, setUserName] = useState("");
   useEffect(() => {
     const getData = async () => {
       const docRef = doc(db, `users/${auth.currentUser.uid}`);
       const docSnap = await getDoc(docRef);
       setItems(docSnap.data().purchases);
+      setUserName(docSnap.data().full_name);
     };
 
     getData();
@@ -85,13 +86,26 @@ const Purchases = () => {
         })
       );
       setNames(namesWithMetadata);
+      console.log(names);
+
+      // Filter names based on matching item_uids and items
+      const filteredNames = namesWithMetadata.filter((name) =>
+        items.includes(name.item_uid)
+      );
+
+      // Filter the urls based on matching itemUIDs and items
       const filteredUrls = urls.filter((url, index) =>
         items.includes(namesWithMetadata[index].item_uid)
       );
+
+      setNames(filteredNames);
       setGallery(filteredUrls);
     };
 
-    getGalleryImages();
+    getGalleryImages().catch((error) => {
+      console.error(error);
+      Alert.alert("Error", "Failed to load gallery images.");
+    });
   }, [items]);
 
   const handleReport = (itemUid) => {
@@ -116,7 +130,14 @@ const Purchases = () => {
     const endIndex = selectedItemUid.indexOf(".", startIndex); // Get the index of the second dot
     const substring = selectedItemUid.substring(startIndex, endIndex);
     const docRef = doc(db, `reports/${substring}`);
-    await setDoc(docRef, { reports: arrayUnion(reportInput) }, { merge: true });
+    await setDoc(
+      docRef,
+      {
+        reports: arrayUnion(userName + ": " + reportInput),
+        user_uid: substring,
+      },
+      { merge: true }
+    );
     setReportInput("");
     setShowReportInput(false);
   };

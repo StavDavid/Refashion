@@ -27,6 +27,7 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import { FontAwesome } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
+import { EvilIcons } from "@expo/vector-icons";
 import {
   getStorage,
   ref,
@@ -90,32 +91,37 @@ const History = () => {
   }, [items]);
 
   const deleteItem = async (itemUid) => {
-    Alert.alert("Confirmation", "Are you sure you want to delete this item?", [
-      { text: "No", style: "cancel" },
-      { text: "Yes", onPress: () => handleDeleteConfirm(itemUid) },
-    ]);
+    Alert.alert(
+      "Confirmation",
+      "Are you sure you want to archive this item? This action will remove the item from the store",
+      [
+        { text: "No", style: "cancel" },
+        { text: "Yes", onPress: () => handleDeleteConfirm(itemUid) },
+      ]
+    );
   };
 
   const handleDeleteConfirm = async (itemUid) => {
-    const desertRef = ref(storage, "/" + itemUid);
-
-    // Delete the file
-    deleteObject(desertRef)
-      .then(() => {
-        Alert.alert("Item Deleted");
-      })
-      .catch((error) => {
-        Alert.alert("Oh no! an error occured");
-      });
+    const itemRef = ref(storage, "/" + itemUid);
 
     try {
-      const userDocRef = doc(db, "users", auth.currentUser.uid);
-      await updateDoc(userDocRef, {
-        items: arrayRemove(itemUid),
+      // Move the file to the archive folder by updating metadata
+      await updateMetadata(itemRef, {
+        customMetadata: {
+          archive: "true",
+        },
       });
+
+      Alert.alert("Item archived and removed from the store");
+
+      // const userDocRef = doc(db, "users", auth.currentUser.uid);
+      // await updateDoc(userDocRef, {
+      //   items: arrayRemove(itemUid),
+      // });
       setRefresh(!refresh);
     } catch (error) {
       // Handle error
+      console.log(error);
     }
   };
 
@@ -135,7 +141,7 @@ const History = () => {
                 <TouchableOpacity
                   onPress={() => deleteItem(names[index].item_uid)}
                 >
-                  <AntDesign name="delete" size={24} color="black" />
+                  <EvilIcons name="archive" size={24} color="black" />
                 </TouchableOpacity>
               </View>
             </Card>

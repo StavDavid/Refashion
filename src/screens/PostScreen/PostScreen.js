@@ -150,6 +150,7 @@ const PostScreen = () => {
       const itemRef = ref(storage, name);
       const metadata = {
         customMetadata: {
+          archive: "false",
           item_name: data.itemName,
           item_description: data.itemDescription,
           item_uid: name,

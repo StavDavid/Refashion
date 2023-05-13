@@ -37,6 +37,7 @@ import { Feather } from "@expo/vector-icons";
 const Settings = () => {
   const navigation = useNavigation();
   const [name, setName] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false); // Add isAdmin state
 
   const handleHistoryPress = () => {
     navigation.navigate("History");
@@ -46,11 +47,16 @@ const Settings = () => {
     navigation.navigate("Purchases");
   };
 
+  const handleReportsPress = () => {
+    navigation.navigate("Reports");
+  };
+
   useEffect(() => {
     const getData = async () => {
       const docRef = doc(db, `users/${auth.currentUser.uid}`);
       const docSnap = await getDoc(docRef);
       setName(docSnap.data().full_name);
+      setIsAdmin(docSnap.data().admin === 1); // Set isAdmin based on admin parameter
     };
     getData();
   }, []);
@@ -68,6 +74,12 @@ const Settings = () => {
           <FontAwesome5 name="opencart" size={24} color="black" />
           <Text>Purchase History</Text>
         </TouchableOpacity>
+        {isAdmin ? ( // Display the Reports button only if isAdmin is true
+          <TouchableOpacity style={styles.button} onPress={handleReportsPress}>
+            <FontAwesome name="file-text-o" size={24} color="black" />
+            <Text>Reports</Text>
+          </TouchableOpacity>
+        ) : null}
         <TouchableOpacity
           style={styles.button}
           onPress={() => navigation.navigate("ForgotPasswordScreen")}

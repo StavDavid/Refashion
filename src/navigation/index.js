@@ -14,6 +14,7 @@ import ItemDetails from "../screens/ItemDetails";
 import Settings from "../screens/SettingsScreen";
 import History from "../screens/HistoryScreen";
 import Purchases from "../screens/PurchasesScreen";
+import Reports from "../screens/ReportsScreen";
 const Stack = createNativeStackNavigator();
 
 const Navigation = () => {
@@ -82,6 +83,7 @@ const Navigation = () => {
         <Stack.Screen name="Settings" component={Settings} />
         <Stack.Screen name="History" component={History} />
         <Stack.Screen name="Purchases" component={Purchases} />
+        <Stack.Screen name="Reports" component={Reports} />
       </Stack.Navigator>
     </NavigationContainer>
   );
