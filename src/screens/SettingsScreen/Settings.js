@@ -42,6 +42,10 @@ const Settings = () => {
     navigation.navigate("History");
   };
 
+  const handlePurchasesPress = () => {
+    navigation.navigate("Purchases");
+  };
+
   useEffect(() => {
     const getData = async () => {
       const docRef = doc(db, `users/${auth.currentUser.uid}`);
@@ -60,7 +64,7 @@ const Settings = () => {
           <FontAwesome5 name="history" size={24} color="black" />
           <Text>Upload History</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleHistoryPress}>
+        <TouchableOpacity style={styles.button} onPress={handlePurchasesPress}>
           <FontAwesome5 name="opencart" size={24} color="black" />
           <Text>Purchase History</Text>
         </TouchableOpacity>
@@ -133,7 +137,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   appButtonContainer: {
-    backgroundColor: "#FF597B",
+    backgroundColor: "#cfc5ae",
     paddingHorizontal: 20,
     paddingTop: 20, // Decreased the top padding to lower the height
     paddingBottom: 10, // Decreased the bottom padding to lower the height

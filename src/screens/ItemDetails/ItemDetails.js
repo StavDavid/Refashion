@@ -5,16 +5,36 @@ import {
   TouchableOpacity,
   StyleSheet,
   Linking,
+  Alert,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { Card } from "react-native-elements";
-
+import { auth, db } from "../../../firebase";
+import { doc, updateDoc, arrayUnion, setDoc, getDoc } from "firebase/firestore";
 const ItemDetails = ({ route }) => {
   const { Name, Description, Uri, Uid, Email, Phone } = route.params;
   const [showOptions, setShowOptions] = useState(false);
-
+  const [showAdditionalButton, setShowAdditionalButton] = useState(false);
   const handlePurchasePress = () => {
-    setShowOptions(true);
+    Alert.alert(
+      "Confirmation",
+      "Are you sure you want to purchase this item?",
+      [
+        { text: "No", style: "cancel" },
+        {
+          text: "Yes",
+          onPress: () => {
+            setShowOptions(true);
+            setShowAdditionalButton(true);
+          },
+        },
+      ]
+    );
+  };
+
+  const updatePurchases = async () => {
+    const imageRef = doc(db, `users/${auth.currentUser.uid}`);
+    await updateDoc(imageRef, { purchases: arrayUnion(Uid) }, { merge: true });
   };
 
   const handleOption1Press = () => {
@@ -27,6 +47,17 @@ const ItemDetails = ({ route }) => {
     if (Email) {
       Linking.openURL(`mailto:${Email}`);
     }
+  };
+  const handleAdditionalButtonPress = () => {
+    Alert.alert("Confirmation", "Did you coordinate with the seller?", [
+      { text: "No", style: "cancel" },
+      {
+        text: "Yes",
+        onPress: () => {
+          updatePurchases();
+        },
+      },
+    ]);
   };
 
   return (
@@ -58,6 +89,14 @@ const ItemDetails = ({ route }) => {
               <Text>Contact by email</Text>
             </TouchableOpacity>
           </View>
+        )}
+        {showAdditionalButton && (
+          <TouchableOpacity
+            style={styles.additionalButton}
+            onPress={handleAdditionalButtonPress}
+          >
+            <Text>Confirm Purchase</Text>
+          </TouchableOpacity>
         )}
       </View>
     </View>
@@ -113,7 +152,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   appButtonContainer: {
-    backgroundColor: "#FF597B",
+    backgroundColor: "#cfc5ae",
     paddingHorizontal: 20,
     paddingTop: 20, // Decreased the top padding to lower the height
     paddingBottom: 10, // Decreased the bottom padding to lower the height
@@ -219,6 +258,25 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 8,
     width: "45%",
+    elevation: 5,
+    shadowColor: "black",
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+  },
+  additionalButton: {
+    backgroundColor: "white",
+    padding: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "center",
+    marginBottom: 100,
+    borderRadius: 8,
+    width: "40%",
+    height: 60,
     elevation: 5,
     shadowColor: "black",
     shadowOpacity: 0.3,

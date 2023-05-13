@@ -13,6 +13,7 @@ import PostScreen from "../screens/PostScreen";
 import ItemDetails from "../screens/ItemDetails";
 import Settings from "../screens/SettingsScreen";
 import History from "../screens/HistoryScreen";
+import Purchases from "../screens/PurchasesScreen";
 const Stack = createNativeStackNavigator();
 
 const Navigation = () => {
@@ -80,6 +81,7 @@ const Navigation = () => {
         <Stack.Screen name="ItemDetails" component={ItemDetails} />
         <Stack.Screen name="Settings" component={Settings} />
         <Stack.Screen name="History" component={History} />
+        <Stack.Screen name="Purchases" component={Purchases} />
       </Stack.Navigator>
     </NavigationContainer>
   );

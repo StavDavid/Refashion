@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   appButtonContainer: {
-    backgroundColor: "#FF597B",
+    backgroundColor: "#cfc5ae",
     paddingHorizontal: 20,
     paddingTop: 20, // Decreased the top padding to lower the height
     paddingBottom: 10, // Decreased the bottom padding to lower the height
@@ -351,7 +351,7 @@ const styles = StyleSheet.create({
   },
   buttonStyle: {
     alignItems: "center",
-    backgroundColor: "#FF597B",
+    backgroundColor: "#cfc5ae",
     padding: 5,
     marginVertical: 10,
     width: 250,
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     opacity: 0.5,
-    backgroundColor: "#B2B2B2",
+    backgroundColor: "#cfc5ae",
     color: "black",
     borderRadius: 8,
   },
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   headerContainer: {
-    backgroundColor: "#FF597B",
+    backgroundColor: "#cfc5ae",
     paddingHorizontal: 20,
     paddingTop: 20, // Decreased the top padding to lower the height
     paddingBottom: 10, // Decreased the bottom padding to lower the height

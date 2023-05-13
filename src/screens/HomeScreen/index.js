@@ -238,7 +238,7 @@ const HomeScreen = () => {
             style={[
               styles.button,
               {
-                backgroundColor: bgColor === "messages" ? "#FF597B" : "#B2B2B2",
+                backgroundColor: bgColor === "messages" ? "#ab996f" : "#cfc5ae",
               },
             ]}
             onPress={handleStorePress}
@@ -249,7 +249,7 @@ const HomeScreen = () => {
             style={[
               styles.button,
               {
-                backgroundColor: bgColor === "newPost" ? "#FF597B" : "#B2B2B2",
+                backgroundColor: bgColor === "newPost" ? "#ab996f" : "#cfc5ae",
               },
             ]}
             onPress={handleNewPostPress}
@@ -261,7 +261,7 @@ const HomeScreen = () => {
             style={[
               styles.button,
               {
-                backgroundColor: bgColor === "settings" ? "#FF597B" : "#B2B2B2",
+                backgroundColor: bgColor === "settings" ? "#ab996f" : "#cfc5ae",
               },
             ]}
             onPress={handleSettingPress}
@@ -272,7 +272,7 @@ const HomeScreen = () => {
             style={[
               styles.button,
               {
-                backgroundColor: bgColor === "signOut" ? "#FF597B" : "#B2B2B2",
+                backgroundColor: bgColor === "signOut" ? "#ab996f" : "#cfc5ae",
               },
             ]}
             onPress={handleSignOutPress}
@@ -289,7 +289,7 @@ export default HomeScreen;
 
 const styles = {
   button: {
-    backgroundColor: "#B2B2B2",
+    backgroundColor: "#cfc5ae",
     padding: 10,
     margin: 10,
     alignItems: "center",
@@ -308,7 +308,7 @@ const styles = {
   },
   appButtonContainer: {
     elevation: 8,
-    backgroundColor: "#009688",
+    backgroundColor: "#EAE6D8",
     borderRadius: 6,
     paddingVertical: 10,
     paddingHorizontal: 5,
@@ -396,7 +396,7 @@ const styles = {
     marginTop: "auto",
   },
   headerContainer: {
-    backgroundColor: "#FF597B",
+    backgroundColor: "#cfc5ae",
     paddingHorizontal: 20,
     paddingTop: 20, // Decreased the top padding to lower the height
     paddingBottom: 10, // Decreased the bottom padding to lower the height

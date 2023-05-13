@@ -8,6 +8,7 @@ import {
   Image,
   TextInput,
   ScrollView,
+  Modal,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { decode } from "base-64";
@@ -16,6 +17,7 @@ import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { storage } from "../../../firebase";
 import { auth, db } from "../../../firebase";
 import { Card } from "react-native-elements";
+import { Entypo } from "@expo/vector-icons";
 import {
   doc,
   updateDoc,
@@ -45,19 +47,22 @@ import CustomInput from "../../components/CustomInput";
 import { Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 
-const History = () => {
+const Purchases = () => {
   const navigation = useNavigation();
   const [items, setItems] = useState("");
   const [gallery, setGallery] = useState([]);
   const [names, setNames] = useState([]);
   const [refresh, setRefresh] = useState(false);
   const isFocused = useIsFocused();
+  const [showReportInput, setShowReportInput] = useState(false);
+  const [reportInput, setReportInput] = useState("");
+  const [selectedItemUid, setSelectedItemUid] = useState("");
 
   useEffect(() => {
     const getData = async () => {
       const docRef = doc(db, `users/${auth.currentUser.uid}`);
       const docSnap = await getDoc(docRef);
-      setItems(docSnap.data().items);
+      setItems(docSnap.data().purchases);
     };
 
     getData();
@@ -89,39 +94,36 @@ const History = () => {
     getGalleryImages();
   }, [items]);
 
-  const deleteItem = async (itemUid) => {
-    Alert.alert("Confirmation", "Are you sure you want to delete this item?", [
-      { text: "No", style: "cancel" },
-      { text: "Yes", onPress: () => handleDeleteConfirm(itemUid) },
-    ]);
+  const handleReport = (itemUid) => {
+    Alert.alert(
+      "Confirmation",
+      "Are you sure you want to report this seller?",
+      [
+        { text: "No", style: "cancel" },
+        {
+          text: "Yes",
+          onPress: () => {
+            setSelectedItemUid(itemUid);
+            setShowReportInput(true);
+          },
+        },
+      ]
+    );
   };
 
-  const handleDeleteConfirm = async (itemUid) => {
-    const desertRef = ref(storage, "/" + itemUid);
-
-    // Delete the file
-    deleteObject(desertRef)
-      .then(() => {
-        Alert.alert("Item Deleted");
-      })
-      .catch((error) => {
-        Alert.alert("Oh no! an error occured");
-      });
-
-    try {
-      const userDocRef = doc(db, "users", auth.currentUser.uid);
-      await updateDoc(userDocRef, {
-        items: arrayRemove(itemUid),
-      });
-      setRefresh(!refresh);
-    } catch (error) {
-      // Handle error
-    }
+  const handleReportUser = async () => {
+    const startIndex = selectedItemUid.indexOf(".") + 1; // Get the index after the first dot
+    const endIndex = selectedItemUid.indexOf(".", startIndex); // Get the index of the second dot
+    const substring = selectedItemUid.substring(startIndex, endIndex);
+    const docRef = doc(db, `reports/${substring}`);
+    await setDoc(docRef, { reports: arrayUnion(reportInput) }, { merge: true });
+    setReportInput("");
+    setShowReportInput(false);
   };
 
   return (
     <View style={{ flex: 1 }}>
-      <Text style={styles.appButtonContainer}>Upload History</Text>
+      <Text style={styles.appButtonContainer}>Purchases History</Text>
       <ScrollView showVerticalScrollIndicator={false}>
         <View style={styles.gallery}>
           {gallery.map((image, index) => (
@@ -133,19 +135,45 @@ const History = () => {
                   {names[index].item_description}
                 </Text>
                 <TouchableOpacity
-                  onPress={() => deleteItem(names[index].item_uid)}
+                  onPress={() => handleReport(names[index].item_uid)}
                 >
-                  <AntDesign name="delete" size={24} color="black" />
+                  <Entypo name="flag" size={24} color="black" />
                 </TouchableOpacity>
               </View>
             </Card>
           ))}
         </View>
       </ScrollView>
+      <Modal visible={showReportInput} transparent>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Report Seller</Text>
+            <TextInput
+              style={styles.reportInput}
+              placeholder="Enter your report"
+              onChangeText={setReportInput}
+              value={reportInput}
+            />
+            <View style={styles.modalButtonContainer}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => setShowReportInput(false)}
+              >
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={handleReportUser}
+              >
+                <Text style={styles.modalButtonText}>Submit</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -330,6 +358,46 @@ const styles = StyleSheet.create({
     color: "white",
     textAlign: "center", // Center the title vertically
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  reportInput: {
+    width: "100%",
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
+  modalButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+  modalButton: {
+    backgroundColor: "#62CDFF",
+    padding: 10,
+    marginHorizontal: 5,
+    borderRadius: 5,
+  },
+  modalButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
 });
 
-export default History;
+export default Purchases;
