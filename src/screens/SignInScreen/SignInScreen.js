@@ -126,11 +126,13 @@ const SignInScreen = () => {
           type="TERTIARY"
         />
         {/* <SocialSignInButtons /> */}
-        <CustomButton
-          text="Don't have an account? Create one now!"
-          onPress={onSignUpPressed}
-          type="TERTIARY"
-        />
+        <View style={styles.bottomContainer}>
+          <CustomButton
+            text="Don't have an account? Create one now!"
+            onPress={onSignUpPressed}
+            type="TERTIARY"
+          />
+        </View>
       </View>
     </ScrollView>
   );
@@ -138,13 +140,19 @@ const SignInScreen = () => {
 
 const styles = StyleSheet.create({
   root: {
+    flex: 1,
     alignItems: "center",
     padding: 20,
+    justifyContent: "flex-end",
   },
   logo: {
     width: "60%",
     maxWidth: 300,
     maxHeight: 200,
+  },
+  bottomContainer: {
+    alignItems: "center",
+    marginBottom: 20,
   },
 });
 

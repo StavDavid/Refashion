@@ -44,9 +44,8 @@ const SignUpScreen = () => {
   };
   return (
     <ScrollView showVerticalScrollIndicator={false}>
-      <View style={styles.root}>
-        <Text style={styles.title}>Create a user</Text>
-        {/* <CustomInput
+      <Text style={styles.appButtonContainer}>Create a user</Text>
+      {/* <CustomInput
           name="name"
           control={control}
           placeholder="Full name"
@@ -78,83 +77,87 @@ const SignUpScreen = () => {
             },
           }}
         /> */}
-        <CustomInput
-          name="email"
-          placeholder="Email"
-          control={control}
-          rules={{
-            pattern: { value: EMAIL_REGEX, message: "Email is invalid" },
-          }}
-        />
-        <CustomInput
-          name="name"
-          placeholder="Full Name"
-          control={control}
-          rules={{
-            required: "Full Name is required",
-            minLength: {
-              value: 5,
-              message:
-                "Full Name should be at least 4 charachters long with space",
-            },
-          }}
-        />
-        <CustomInput
-          name="phone"
-          placeholder="Phone Number"
-          control={control}
-          rules={{
-            required: "Phone number is required",
-            pattern: {
-              value: PHONE_NUMBER_REGEX,
-              message: "Phone number is invalid",
-            },
-          }}
-        />
-        <CustomInput
-          name="password"
-          placeholder="Password"
-          control={control}
-          secureTextEntry
-          rules={{
-            required: "Password is required",
-            minLength: {
-              value: 8,
-              message: "Password should be at least 8 charachters long",
-            },
-          }}
-        />
-        <CustomInput
-          name="password-repeat"
-          placeholder="Repeat Password"
-          control={control}
-          secureTextEntry
-          rules={{
-            validate: (value) => value === pwd || "Password do not match",
-          }}
-        />
-        <CustomButton
-          text="Register"
-          onPress={handleSubmit(onRegisterPressed)}
-        />
-        <Text style={styles.text}>
-          By registering, you confirm that you accept our{" "}
-          <Text style={styles.link} onPress={onTermsOfUsePressed}>
-            Terms of Use
-          </Text>{" "}
-          and
-          <Text style={styles.link} onPress={onPrivacyPolicyPressed}>
-            {" "}
-            Privacy Policy
-          </Text>
+      <CustomInput
+        name="email"
+        placeholder="Email"
+        control={control}
+        rules={{
+          pattern: {
+            value: EMAIL_REGEX,
+            message: "Email is invalid",
+          },
+        }}
+      />
+      <CustomInput
+        name="name"
+        placeholder="Full Name"
+        control={control}
+        rules={{
+          required: "Full Name is required",
+          minLength: {
+            value: 5,
+            message:
+              "Full Name should be at least 4 charachters long with space",
+          },
+        }}
+      />
+      <CustomInput
+        name="phone"
+        placeholder="Phone Number"
+        control={control}
+        rules={{
+          required: "Phone number is required",
+          pattern: {
+            value: PHONE_NUMBER_REGEX,
+            message: "Phone number is invalid, xxx-xxxxxxx",
+          },
+        }}
+      />
+      <CustomInput
+        name="password"
+        placeholder="Password"
+        control={control}
+        secureTextEntry
+        rules={{
+          required: "Password is required",
+          minLength: {
+            value: 8,
+            message: "Password should be at least 8 charachters long",
+          },
+          pattern: {
+            value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/,
+            message:
+              "Password must contain at least one lowercase letter, one uppercase letter, and one digit",
+          },
+        }}
+      />
+      <CustomInput
+        name="password-repeat"
+        placeholder="Repeat Password"
+        control={control}
+        secureTextEntry
+        rules={{
+          validate: (value) => value === pwd || "Password do not match",
+        }}
+      />
+      <CustomButton text="Register" onPress={handleSubmit(onRegisterPressed)} />
+      <Text style={styles.text}>
+        By registering, you confirm that you accept our{" "}
+        <Text style={styles.link} onPress={onTermsOfUsePressed}>
+          Terms of Use
+        </Text>{" "}
+        and
+        <Text style={styles.link} onPress={onPrivacyPolicyPressed}>
+          {" "}
+          Privacy Policy
         </Text>
-        {/* <SocialSignInButtons /> */}
-        <CustomButton
-          text="Have an account? Sign in"
-          onPress={onSignInPressed}
-          type="TERTIARY"
-        />
-      </View>
+      </Text>
+      {/* <SocialSignInButtons /> */}
+      <CustomButton
+        text="Have an account? Sign in"
+        onPress={onSignInPressed}
+        type="TERTIARY"
+      />
     </ScrollView>
   );
 };
@@ -176,6 +179,29 @@ const styles = StyleSheet.create({
   },
   link: {
     color: "#FDB075",
+  },
+  appButtonContainer: {
+    backgroundColor: "#cfc5ae",
+    paddingHorizontal: 20,
+    paddingTop: 20, // Decreased the top padding to lower the height
+    paddingBottom: 10, // Decreased the bottom padding to lower the height
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center", // Center the title horizontally
+    borderBottomWidth: 1,
+    borderBottomColor: "#B2B2B2",
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    elevation: 5,
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "white",
+    textAlign: "center", // Center the title vertically
   },
 });
 
