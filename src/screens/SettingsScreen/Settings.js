@@ -8,6 +8,7 @@ import {
   Image,
   TextInput,
   ScrollView,
+  Linking,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { decode } from "base-64";
@@ -38,7 +39,7 @@ const Settings = () => {
   const navigation = useNavigation();
   const [name, setName] = useState("");
   const [isAdmin, setIsAdmin] = useState(false); // Add isAdmin state
-
+  const Email = "refashionhelpcenter@gmail.com";
   const handleHistoryPress = () => {
     navigation.navigate("History");
   };
@@ -60,7 +61,9 @@ const Settings = () => {
     };
     getData();
   }, []);
-
+  const handleImprove = () => {
+    Linking.openURL(`mailto:${Email}`);
+  };
   return (
     <View style={{ flex: 1 }}>
       <Text style={styles.appButtonContainer}>Settings</Text>
@@ -86,6 +89,10 @@ const Settings = () => {
         >
           <MaterialCommunityIcons name="lock-reset" size={24} color="black" />
           <Text>Reset Password</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleImprove}>
+          <FontAwesome5 name="hands-helping" size={24} color="black" />
+          <Text>Help us improve!</Text>
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.5}

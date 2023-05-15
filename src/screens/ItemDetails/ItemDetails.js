@@ -37,6 +37,7 @@ const ItemDetails = ({ route }) => {
   const updatePurchases = async () => {
     const imageRef = doc(db, `users/${auth.currentUser.uid}`);
     await updateDoc(imageRef, { purchases: arrayUnion(Uid) }, { merge: true });
+    navigation.navigate("Purchases");
   };
 
   const handleOption1Press = () => {

@@ -43,6 +43,7 @@ const PostScreen = () => {
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [subcategoryOpen, setSubcategoryOpen] = useState(false);
   const [showSubcategory, setShowSubcategory] = useState(false);
+  const [intArray, setIntArray] = useState([0, 0, 0, 0, 0]);
   const [value, setValue] = useState(null);
   const [items, setItems] = useState([
     {
@@ -168,6 +169,7 @@ const PostScreen = () => {
       await setDoc(doc(db, "items", name), {
         item_name: data.itemName,
         item_description: data.itemDescription,
+        rating: intArray,
       });
 
       Alert.alert("Uploaded!");

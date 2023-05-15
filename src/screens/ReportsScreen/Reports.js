@@ -8,6 +8,8 @@ import {
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { doc, getDocs, collection, updateDoc } from "firebase/firestore";
+import { storage } from "../../../firebase";
+import { auth } from "../../../firebase";
 import { db } from "../../../firebase";
 import { Card } from "react-native-elements";
 import { Ionicons } from "@expo/vector-icons";
@@ -35,40 +37,75 @@ const Reports = () => {
   }, []);
 
   const renderReportCard = ({ item }) => {
-    const { user_uid, reports } = item.data;
+    const { user_uid, reports, item_uid } = item.data;
 
     if (Array.isArray(reports) && reports.length === 0) {
       return null;
     }
 
-    const handleBan = (itemUid) => {
-      Alert.alert("Confirmation", "Are you sure you want to ban this seller?", [
-        { text: "No", style: "cancel" },
-        {
-          text: "Yes",
-          onPress: async () => {
-            const imageRef = doc(db, `users/${itemUid}`);
-            await updateDoc(imageRef, { ban: 1 }, { merge: true }).then(() => {
-              Alert.alert("User Banned");
-            });
-          },
-        },
-      ]);
+    const handleAction = async (itemUid) => {
+      if (item_uid) {
+        // Handle delete
+        Alert.alert(
+          "Confirmation",
+          "Are you sure you want to delete this item?",
+          [
+            { text: "No", style: "cancel" },
+            {
+              text: "Yes",
+              onPress: async () => {
+                // Perform delete operation
+                const itemRef = doc(db, `items/${itemUid}`);
+                await deleteDoc(itemRef).then(() => {
+                  Alert.alert("Item Deleted");
+                });
+              },
+            },
+          ]
+        );
+      } else {
+        // Handle ban
+        Alert.alert(
+          "Confirmation",
+          "Are you sure you want to ban this seller?",
+          [
+            { text: "No", style: "cancel" },
+            {
+              text: "Yes",
+              onPress: async () => {
+                const imageRef = doc(db, `users/${itemUid}`);
+                await updateDoc(imageRef, { ban: 1 }, { merge: true }).then(
+                  () => {
+                    Alert.alert("User Banned");
+                  }
+                );
+              },
+            },
+          ]
+        );
+      }
     };
+
+    const cardTitle = item_uid ? item_uid : user_uid;
+    const buttonLabel = item_uid ? "Delete" : "Ban";
+    const buttonIcon = item_uid ? "trash" : "ban";
 
     return (
       <Card containerStyle={styles.cardContainer}>
         <View style={styles.itemDetails}>
-          <Text style={styles.cardTitle}>{user_uid}</Text>
-          <TouchableOpacity onPress={() => handleBan(item.id)}>
-            <FontAwesome name="ban" size={24} color="black" />
-          </TouchableOpacity>
+          <Text style={styles.cardTitle}>{cardTitle}</Text>
         </View>
         {reports.map((report, index) => (
           <Text key={index} style={styles.cardDescription}>
             {report}
           </Text>
         ))}
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => handleAction(item.id)}
+        >
+          <FontAwesome name={buttonIcon} size={24} color="black" />
+        </TouchableOpacity>
       </Card>
     );
   };
@@ -272,6 +309,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "white",
     textAlign: "center", // Center the title vertically
+  },
+  deleteButton: {
+    position: "absolute",
+    bottom: 10,
+    right: 10,
   },
 });
 

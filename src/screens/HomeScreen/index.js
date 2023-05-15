@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  Modal,
+  StyleSheet,
+  TextInput,
+  Button,
+  Alert,
+} from "react-native";
 import { getAuth, signOut } from "firebase/auth";
 import { storage } from "../../../firebase";
 import { auth } from "../../../firebase";
@@ -8,12 +19,15 @@ import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { NavigationContainer } from "@react-navigation/native";
 import PostScreen from "../PostScreen";
 import CustomButton from "../../components/CustomButton";
+import { db } from "../../../firebase";
+import { getDoc, doc, setDoc, arrayUnion } from "firebase/firestore";
 import { AntDesign } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import { getStorage, ref, listAll, getMetadata } from "firebase/storage";
 import DropDownPicker from "react-native-dropdown-picker";
 import moment from "moment";
+import { Rating } from "react-native-ratings";
 import { Card } from "react-native-elements";
 const HomeScreen = () => {
   const [bgColor, setBgColor] = useState("");
@@ -22,12 +36,17 @@ const HomeScreen = () => {
   const [gallery, setGallery] = useState([]);
   const [names, setNames] = useState([]);
   const isFocused = useIsFocused();
+  const [showReportInput, setShowReportInput] = useState(false);
+  const [reportInput, setReportInput] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [subcategoryOpen, setSubcategoryOpen] = useState(false);
   const [showSubcategory, setShowSubcategory] = useState(false);
+  const [selectedItemUid, setSelectedItemUid] = useState("");
+  const [userName, setUserName] = useState("");
   const [timestamps, setTimestamps] = useState([]);
+  const [ratings, setRatings] = useState({});
   const [value, setValue] = useState(null);
   const [items, setItems] = useState([
     {
@@ -86,6 +105,30 @@ const HomeScreen = () => {
       ],
     },
   ]);
+  useEffect(() => {
+    // Fetch ratings for all item UIDs
+    const fetchRatings = async () => {
+      const newRatings = {};
+      for (const name of names) {
+        const rating = await getRating(name.item_uid);
+        newRatings[name.item_uid] = rating;
+      }
+      setRatings(newRatings);
+    };
+
+    fetchRatings();
+  }, [names]);
+  useEffect(() => {
+    const getData = async () => {
+      if (auth.currentUser) {
+        const docRef = doc(db, `users/${auth.currentUser.uid}`);
+        const docSnap = await getDoc(docRef);
+        setUserName(docSnap.data().full_name);
+      }
+    };
+
+    getData();
+  }, [isFocused]);
   useEffect(() => {
     if (isFocused) {
       const getGalleryImages = async () => {
@@ -153,6 +196,57 @@ const HomeScreen = () => {
       });
     } catch (error) {
       console.warn(error.message);
+    }
+  };
+  const handleReport = (itemUid) => {
+    Alert.alert("Confirmation", "Are you sure you want to report this item?", [
+      { text: "No", style: "cancel" },
+      {
+        text: "Yes",
+        onPress: () => {
+          setSelectedItemUid(itemUid);
+          setShowReportInput(true);
+        },
+      },
+    ]);
+  };
+  const handleReportUser = async () => {
+    const startIndex = selectedItemUid.indexOf(".") + 1; // Get the index after the first dot
+    const endIndex = selectedItemUid.indexOf(".", startIndex); // Get the index of the second dot
+    const substring = selectedItemUid.substring(startIndex, endIndex);
+    const docRef = doc(db, `reports/${selectedItemUid}`);
+    await setDoc(
+      docRef,
+      {
+        reports: arrayUnion(userName + ": " + reportInput),
+        item_uid: selectedItemUid,
+      },
+      { merge: true }
+    );
+    setReportInput("");
+    setShowReportInput(false);
+  };
+  const getRating = async (itemUid) => {
+    try {
+      const docRef = doc(db, `items/${itemUid}`);
+      const docSnap = await getDoc(docRef);
+      const ratingArray = docSnap.data().rating;
+
+      if (Array.isArray(ratingArray) && ratingArray.length === 5) {
+        const itemScore =
+          1 * ratingArray[0] +
+          2 * ratingArray[1] +
+          3 * ratingArray[2] +
+          4 * ratingArray[3] +
+          5 * ratingArray[4];
+        return itemScore;
+      } else {
+        // Handle the case when ratingArray is not an array or doesn't have the expected length
+        return 0; // Return a default value or handle the error appropriately
+      }
+    } catch (error) {
+      console.error("Error getting rating:", error);
+      return 0; // Return a default value or handle the error appropriately
     }
   };
 
@@ -232,6 +326,25 @@ const HomeScreen = () => {
                     <Text style={styles.cardTimestamp}>
                       {timestamps[index]}
                     </Text>
+                    <View style={styles.ratingContainer}>
+                      <Rating
+                        showRating={false}
+                        startingValue={ratings[names[index].item_uid]} // Replace with the actual rating value
+                        imageSize={20}
+                        readonly
+                        style={styles.rating}
+                      />
+                      <TouchableOpacity
+                        onPress={() => handleReport(names[index].item_uid)}
+                      >
+                        <MaterialCommunityIcons
+                          name="flag"
+                          size={24}
+                          color="gray"
+                          style={styles.reportIcon}
+                        />
+                      </TouchableOpacity>
+                    </View>
                   </TouchableOpacity>
                 </Card>
               );
@@ -241,6 +354,35 @@ const HomeScreen = () => {
           })}
         </View>
       </ScrollView>
+      <View>
+        <Modal visible={showReportInput} transparent>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Report Item</Text>
+              <TextInput
+                style={styles.reportInput}
+                placeholder="Enter your report"
+                onChangeText={setReportInput}
+                value={reportInput}
+              />
+              <View style={styles.modalButtonContainer}>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={() => setShowReportInput(false)}
+                >
+                  <Text style={styles.modalButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={handleReportUser}
+                >
+                  <Text style={styles.modalButtonText}>Submit</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      </View>
       <View style={styles.container}>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
@@ -428,5 +570,63 @@ const styles = {
     fontWeight: "bold",
     color: "white",
     textAlign: "center", // Center the title vertically
+  },
+  rating: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    marginBottom: 5,
+    marginRight: 5,
+  },
+  ratingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  reportIcon: {
+    marginLeft: 200,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  reportInput: {
+    width: "100%",
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
+  modalButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+  modalButton: {
+    backgroundColor: "#cfc5ae",
+    padding: 10,
+    marginHorizontal: 40,
+    borderRadius: 5,
+  },
+  modalButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  reportButton: {
+    position: "absolute",
+    bottom: 10,
+    right: 10,
   },
 };

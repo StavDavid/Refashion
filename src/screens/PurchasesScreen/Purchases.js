@@ -46,7 +46,7 @@ import { useForm } from "react-hook-form";
 import CustomInput from "../../components/CustomInput";
 import { Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
-
+import { Rating } from "react-native-ratings";
 const Purchases = () => {
   const navigation = useNavigation();
   const [items, setItems] = useState("");
@@ -58,6 +58,9 @@ const Purchases = () => {
   const [reportInput, setReportInput] = useState("");
   const [selectedItemUid, setSelectedItemUid] = useState("");
   const [userName, setUserName] = useState("");
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [sellerRating, setSellerRating] = useState(0);
+
   useEffect(() => {
     const getData = async () => {
       const docRef = doc(db, `users/${auth.currentUser.uid}`);
@@ -86,8 +89,6 @@ const Purchases = () => {
         })
       );
       setNames(namesWithMetadata);
-      console.log(names);
-
       // Filter names based on matching item_uids and items
       const filteredNames = namesWithMetadata.filter((name) =>
         items.includes(name.item_uid)
@@ -108,6 +109,18 @@ const Purchases = () => {
     });
   }, [items]);
 
+  const handleRatingSubmit = async () => {
+    const docRef = doc(db, `items/${selectedItemUid}`);
+    const docSnap = await getDoc(docRef);
+    const ratingArray = docSnap.data().rating;
+    ratingArray[sellerRating - 1] += 1;
+
+    await updateDoc(docRef, {
+      rating: ratingArray,
+    });
+
+    setShowRatingModal(false);
+  };
   const handleReport = (itemUid) => {
     Alert.alert(
       "Confirmation",
@@ -123,6 +136,11 @@ const Purchases = () => {
         },
       ]
     );
+  };
+
+  const handleRating = (itemUid) => {
+    setSelectedItemUid(itemUid);
+    setShowRatingModal(true);
   };
 
   const handleReportUser = async () => {
@@ -156,9 +174,16 @@ const Purchases = () => {
                   {names[index].item_description}
                 </Text>
                 <TouchableOpacity
+                  style={styles.reportButton}
                   onPress={() => handleReport(names[index].item_uid)}
                 >
                   <Entypo name="flag" size={24} color="black" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={() => handleRating(names[index].item_uid)}
+                >
+                  <Text style={styles.modalButtonText}>Rate Seller</Text>
                 </TouchableOpacity>
               </View>
             </Card>
@@ -189,6 +214,30 @@ const Purchases = () => {
                 <Text style={styles.modalButtonText}>Submit</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+      </Modal>
+      <Modal visible={showRatingModal} transparent>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Rate Seller</Text>
+            <Rating
+              showRating
+              onFinishRating={(rating) => setSellerRating(rating)}
+              style={{ paddingVertical: 10 }}
+            />
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={handleRatingSubmit}
+            >
+              <Text style={styles.modalButtonText}>Save</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => setShowRatingModal(false)}
+            >
+              <Text style={styles.modalButtonText}>Cancel</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -410,14 +459,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   modalButton: {
-    backgroundColor: "#62CDFF",
+    backgroundColor: "#cfc5ae",
     padding: 10,
-    marginHorizontal: 5,
+    marginHorizontal: 40,
     borderRadius: 5,
   },
   modalButtonText: {
     color: "white",
     fontWeight: "bold",
+  },
+  reportButton: {
+    position: "absolute",
+    bottom: 10,
+    right: 10,
   },
 });
 
