@@ -14,8 +14,10 @@ import { db } from "../../../firebase";
 import { Card } from "react-native-elements";
 import { Ionicons } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 
 const Reports = () => {
+  const navigation = useNavigation();
   const [reports, setReports] = useState(null);
 
   useEffect(() => {
@@ -123,6 +125,13 @@ const Reports = () => {
       ) : (
         <Text>Loading...</Text>
       )}
+      <TouchableOpacity
+        activeOpacity={0.5}
+        style={styles.backButtonStyle}
+        onPress={() => navigation.navigate("Home")}
+      >
+        <Text style={styles.backTextStyle}>Back to store</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -224,11 +233,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   backButtonStyle: {
-    alignItems: "center",
-    color: "gray",
-    padding: 5,
-    marginVertical: 10,
-    width: 250,
+    position: "absolute",
+    bottom: 10,
+    alignSelf: "center",
     // borderRadius: 8,
   },
   imageStyle: {
