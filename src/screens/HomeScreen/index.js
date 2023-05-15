@@ -27,6 +27,7 @@ import { SimpleLineIcons } from "@expo/vector-icons";
 import { getStorage, ref, listAll, getMetadata } from "firebase/storage";
 import DropDownPicker from "react-native-dropdown-picker";
 import moment from "moment";
+import Icon from "react-native-vector-icons/FontAwesome";
 import { Rating } from "react-native-ratings";
 import { Card } from "react-native-elements";
 const HomeScreen = () => {
@@ -210,6 +211,7 @@ const HomeScreen = () => {
       },
     ]);
   };
+
   const handleReportUser = async () => {
     const startIndex = selectedItemUid.indexOf(".") + 1; // Get the index after the first dot
     const endIndex = selectedItemUid.indexOf(".", startIndex); // Get the index of the second dot
@@ -291,6 +293,15 @@ const HomeScreen = () => {
           />
         )}
       </View>
+      <View style={styles.searchBarContainer}>
+        <Icon name="search" size={15} style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search"
+          onChangeText={updateSearch}
+          value={search}
+        />
+      </View>
       <ScrollView showVerticalScrollIndicator={false}>
         <View style={styles.gallery}>
           {gallery.map((image, index) => {
@@ -301,7 +312,13 @@ const HomeScreen = () => {
               selectedSubcategory === "" ||
               names[index].subcategory === selectedSubcategory;
 
-            if (categoryMatches && subcategoryMatches) {
+            const nameMatches =
+              search === "" ||
+              names[index].item_name
+                .toLowerCase()
+                .includes(search.toLowerCase());
+
+            if (categoryMatches && subcategoryMatches && nameMatches) {
               return (
                 <Card key={index} containerStyle={styles.cardContainer}>
                   <TouchableOpacity
@@ -628,5 +645,20 @@ const styles = {
     position: "absolute",
     bottom: 10,
     right: 10,
+  },
+  searchBarContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    margin: 10,
+    paddingHorizontal: 10,
+    backgroundColor: "#ebebeb",
+    borderRadius: 5,
+  },
+  searchIcon: {
+    marginRight: 10,
+  },
+  searchBar: {
+    flex: 1,
+    height: 40,
   },
 };
