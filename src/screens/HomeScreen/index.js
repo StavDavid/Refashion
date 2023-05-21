@@ -277,36 +277,50 @@ const HomeScreen = () => {
         <Text style={styles.headerTitle}>Store</Text>
       </View>
       <View style={{ flexDirection: "row", justifyContent: "center" }}>
-        <DropDownPicker
-          open={categoryOpen}
-          value={selectedCategory}
-          items={items}
-          setOpen={setCategoryOpen}
-          setValue={setSelectedCategory}
-          setItems={setItems}
-          placeholder="Select a category"
-          onChangeValue={(value) => {
-            setSelectedCategory(value);
-            setSelectedSubcategory("");
-            setShowSubcategory(true);
-          }}
-          containerStyle={{ flex: 1, marginLeft: 5 }}
-        />
+        <View style={styles.dropDownContainer}>
+          <DropDownPicker
+            open={categoryOpen}
+            value={selectedCategory}
+            items={items}
+            setOpen={setCategoryOpen}
+            setValue={setSelectedCategory}
+            setItems={setItems}
+            placeholder="Select a category"
+            onChangeValue={(value) => {
+              setSelectedCategory(value);
+              setSelectedSubcategory("");
+              setShowSubcategory(value !== "");
+            }}
+            containerStyle={styles.dropDownStyle}
+            style={styles.dropDownStyle}
+            labelStyle={styles.dropDownLabelStyle}
+            dropDownStyle={styles.dropDownStyle}
+            selectedItemStyle={styles.dropDownSelectedItemStyle}
+            itemStyle={styles.dropDownItemStyle}
+          />
+        </View>
 
         {showSubcategory && (
-          <DropDownPicker
-            open={subcategoryOpen}
-            value={selectedSubcategory}
-            items={
-              items.find((item) => item.value === selectedCategory)
-                ?.subcategories || []
-            }
-            placeholder="Select a subcategory"
-            setOpen={setSubcategoryOpen}
-            setValue={setSelectedSubcategory}
-            setItems={setItems}
-            containerStyle={{ flex: 1, marginRight: 5 }}
-          />
+          <View style={styles.dropDownContainer}>
+            <DropDownPicker
+              open={subcategoryOpen}
+              value={selectedSubcategory}
+              items={
+                items.find((item) => item.value === selectedCategory)
+                  ?.subcategories || []
+              }
+              placeholder="Select a subcategory"
+              setOpen={setSubcategoryOpen}
+              setValue={setSelectedSubcategory}
+              setItems={setItems}
+              containerStyle={styles.dropDownStyle}
+              style={styles.dropDownStyle}
+              labelStyle={styles.dropDownLabelStyle}
+              dropDownStyle={styles.dropDownStyle}
+              selectedItemStyle={styles.dropDownSelectedItemStyle}
+              itemStyle={styles.dropDownItemStyle}
+            />
+          </View>
         )}
       </View>
       <View style={styles.searchBarContainer}>
@@ -702,5 +716,27 @@ const styles = {
   searchBar: {
     flex: 1,
     height: 40,
+  },
+  dropDownContainer: {
+    flex: 1,
+    marginHorizontal: 2,
+  },
+  dropDownStyle: {
+    backgroundColor: "#fafafa",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    zIndex: 9999,
+  },
+  dropDownLabelStyle: {
+    fontSize: 16,
+    textAlign: "left",
+    color: "#333",
+  },
+  dropDownSelectedItemStyle: {
+    backgroundColor: "#e6e6e6",
+  },
+  dropDownItemStyle: {
+    justifyContent: "flex-start",
   },
 };

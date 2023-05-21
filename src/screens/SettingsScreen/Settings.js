@@ -10,6 +10,7 @@ import {
   ScrollView,
   Linking,
 } from "react-native";
+import { getAuth, signOut } from "firebase/auth";
 import React, { useState, useEffect } from "react";
 import { decode } from "base-64";
 import CustomButton from "../../components/CustomButton";

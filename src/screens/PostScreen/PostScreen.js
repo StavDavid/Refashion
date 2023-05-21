@@ -7,6 +7,8 @@ import {
   SafeAreaView,
   Image,
   TextInput,
+  KeyboardAvoidingView,
+  ScrollView,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { decode } from "base-64";
@@ -181,106 +183,124 @@ const PostScreen = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <Text style={styles.appButtonContainer}>Post a New Item!</Text>
-      <CustomInput
-        name="itemName"
-        placeholder="Item Name"
-        control={control}
-        rules={{
-          required: "Item Name is required",
-        }}
-      />
-      <CustomInput
-        name="itemDescription"
-        placeholder="Item Description"
-        control={control}
-        rules={{
-          required: "Item Description is required",
-        }}
-      />
-      <View style={{ flexDirection: "row" }}>
-        <DropDownPicker
-          open={categoryOpen}
-          value={selectedCategory}
-          items={items}
-          setOpen={setCategoryOpen}
-          setValue={setSelectedCategory}
-          setItems={setItems}
-          placeholder="Select a category"
-          onChangeValue={(value) => {
-            setSelectedCategory(value);
-            setSelectedSubcategory("");
-            setShowSubcategory(true);
-          }}
-          containerStyle={{ flex: 1, marginRight: 5 }}
-        />
-
-        {showSubcategory && (
-          <DropDownPicker
-            open={subcategoryOpen}
-            value={selectedSubcategory}
-            items={
-              items.find((item) => item.value === selectedCategory)
-                ?.subcategories || []
-            }
-            placeholder="Select a subcategory"
-            setOpen={setSubcategoryOpen}
-            setValue={setSelectedSubcategory}
-            setItems={setItems}
-            containerStyle={{ flex: 1, marginLeft: 5 }}
-          />
-        )}
-      </View>
-      <View style={styles.container}>
-        {image ? (
-          <Image source={{ uri: image }} style={styles.imageStyle} />
-        ) : (
-          <Image source={{ uri: image }} style={styles.imagePlaceholder} />
-        )}
-        {/* <Text style={styles.textStyle}>{filePath.uri}</Text> */}
-        <TouchableOpacity
-          activeOpacity={0.5}
-          style={styles.buttonStyle}
-          onPress={pickImage}
-        >
-          <Text style={styles.textStyle}>Choose Image</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          activeOpacity={0.5}
-          disabled={!isImageSelected}
-          style={[
-            styles.buttonStyle,
-            isImageSelected ? null : styles.buttonDisabled,
-          ]}
-          onPress={handleSubmit(uploadPhoto)}
-        >
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
+      <KeyboardAvoidingView style={{ flex: 1 }} ehavior={"padding"} enabled>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <Text style={styles.appButtonContainer}>Post a New Item!</Text>
+          <CustomInput
+            name="itemName"
+            placeholder="Item Name"
+            control={control}
+            rules={{
+              required: "Item Name is required",
             }}
-          >
-            <Feather name="upload" size={24} color="#393E46" />
-            <Text
-              style={[
-                styles.textStyle,
-                isImageSelected ? null : styles.textStyleDisabled,
-              ]}
-              text={loading ? "Loading..." : "Upload"}
-            >
-              {loading ? "Loading..." : "Upload"}
-            </Text>
+          />
+          <CustomInput
+            name="itemDescription"
+            placeholder="Item Description"
+            control={control}
+            rules={{
+              required: "Item Description is required",
+            }}
+          />
+          <View style={{ flexDirection: "row" }}>
+            <View style={styles.dropDownContainer}>
+              <DropDownPicker
+                open={categoryOpen}
+                value={selectedCategory}
+                items={items}
+                setOpen={setCategoryOpen}
+                setValue={setSelectedCategory}
+                setItems={setItems}
+                placeholder="Select a category"
+                onChangeValue={(value) => {
+                  setSelectedCategory(value);
+                  setSelectedSubcategory("");
+                  setShowSubcategory(true);
+                }}
+                containerStyle={styles.dropDownStyle}
+                style={styles.dropDownStyle}
+                labelStyle={styles.dropDownLabelStyle}
+                dropDownStyle={styles.dropDownStyle}
+                selectedItemStyle={styles.dropDownSelectedItemStyle}
+                itemStyle={styles.dropDownItemStyle}
+              />
+            </View>
+            {showSubcategory && (
+              <View style={styles.dropDownContainer}>
+                <DropDownPicker
+                  open={subcategoryOpen}
+                  value={selectedSubcategory}
+                  items={
+                    items.find((item) => item.value === selectedCategory)
+                      ?.subcategories || []
+                  }
+                  placeholder="Select a subcategory"
+                  setOpen={setSubcategoryOpen}
+                  setValue={setSelectedSubcategory}
+                  setItems={setItems}
+                  containerStyle={styles.dropDownStyle}
+                  style={styles.dropDownStyle}
+                  labelStyle={styles.dropDownLabelStyle}
+                  dropDownStyle={styles.dropDownStyle}
+                  selectedItemStyle={styles.dropDownSelectedItemStyle}
+                  itemStyle={styles.dropDownItemStyle}
+                />
+              </View>
+            )}
           </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          activeOpacity={0.5}
-          style={styles.backButtonStyle}
-          onPress={() => navigation.navigate("Home")}
-        >
-          <Text style={styles.backTextStyle}>Back to store</Text>
-        </TouchableOpacity>
-      </View>
+          <View style={styles.container}>
+            {image ? (
+              <Image source={{ uri: image }} style={styles.imageStyle} />
+            ) : (
+              <Image source={{ uri: image }} style={styles.imagePlaceholder} />
+            )}
+            {/* <Text style={styles.textStyle}>{filePath.uri}</Text> */}
+            <TouchableOpacity
+              activeOpacity={0.5}
+              style={styles.buttonStyle}
+              onPress={pickImage}
+            >
+              <Text style={styles.textStyle}>Choose Image</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.5}
+              disabled={!isImageSelected}
+              style={[
+                styles.buttonStyle,
+                isImageSelected ? null : styles.buttonDisabled,
+              ]}
+              onPress={handleSubmit(uploadPhoto)}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Feather name="upload" size={24} color="#393E46" />
+                <Text
+                  style={[
+                    styles.textStyle,
+                    isImageSelected ? null : styles.textStyleDisabled,
+                  ]}
+                  text={loading ? "Loading..." : "Upload"}
+                >
+                  {loading ? "Loading..." : "Upload"}
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              activeOpacity={0.5}
+              style={styles.backButtonStyle}
+              onPress={() => navigation.navigate("Home")}
+            >
+              <Text style={styles.backTextStyle}>Back to store</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -399,10 +419,13 @@ const styles = StyleSheet.create({
   pickerStyle: {
     flex: 1,
     height: 40,
-    borderColor: "gray", // Update the border color
+    borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 10,
+    backgroundColor: "#fff",
+    color: "#000",
+    marginBottom: 10,
   },
   headerContainer: {
     backgroundColor: "#cfc5ae",
@@ -438,5 +461,27 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#ccc",
+  },
+  dropDownContainer: {
+    flex: 1,
+    marginHorizontal: 2,
+  },
+  dropDownStyle: {
+    backgroundColor: "#fafafa",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    zIndex: 9999,
+  },
+  dropDownLabelStyle: {
+    fontSize: 16,
+    textAlign: "left",
+    color: "#333",
+  },
+  dropDownSelectedItemStyle: {
+    backgroundColor: "#e6e6e6",
+  },
+  dropDownItemStyle: {
+    justifyContent: "flex-start",
   },
 });
