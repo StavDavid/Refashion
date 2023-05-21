@@ -183,124 +183,120 @@ const PostScreen = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <KeyboardAvoidingView style={{ flex: 1 }} ehavior={"padding"} enabled>
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-          <Text style={styles.appButtonContainer}>Post a New Item!</Text>
-          <CustomInput
-            name="itemName"
-            placeholder="Item Name"
-            control={control}
-            rules={{
-              required: "Item Name is required",
+      <Text style={styles.appButtonContainer}>Post a New Item!</Text>
+      <CustomInput
+        name="itemName"
+        placeholder="Item Name"
+        control={control}
+        rules={{
+          required: "Item Name is required",
+        }}
+      />
+      <CustomInput
+        name="itemDescription"
+        placeholder="Item Description"
+        control={control}
+        rules={{
+          required: "Item Description is required",
+        }}
+      />
+      <View style={{ flexDirection: "row" }}>
+        <View style={styles.dropDownContainer}>
+          <DropDownPicker
+            open={categoryOpen}
+            value={selectedCategory}
+            items={items}
+            setOpen={setCategoryOpen}
+            setValue={setSelectedCategory}
+            setItems={setItems}
+            placeholder="Select a category"
+            onChangeValue={(value) => {
+              setSelectedCategory(value);
+              setSelectedSubcategory("");
+              setShowSubcategory(true);
             }}
+            containerStyle={styles.dropDownStyle}
+            style={styles.dropDownStyle}
+            labelStyle={styles.dropDownLabelStyle}
+            dropDownStyle={styles.dropDownStyle}
+            selectedItemStyle={styles.dropDownSelectedItemStyle}
+            itemStyle={styles.dropDownItemStyle}
           />
-          <CustomInput
-            name="itemDescription"
-            placeholder="Item Description"
-            control={control}
-            rules={{
-              required: "Item Description is required",
-            }}
-          />
-          <View style={{ flexDirection: "row" }}>
-            <View style={styles.dropDownContainer}>
-              <DropDownPicker
-                open={categoryOpen}
-                value={selectedCategory}
-                items={items}
-                setOpen={setCategoryOpen}
-                setValue={setSelectedCategory}
-                setItems={setItems}
-                placeholder="Select a category"
-                onChangeValue={(value) => {
-                  setSelectedCategory(value);
-                  setSelectedSubcategory("");
-                  setShowSubcategory(true);
-                }}
-                containerStyle={styles.dropDownStyle}
-                style={styles.dropDownStyle}
-                labelStyle={styles.dropDownLabelStyle}
-                dropDownStyle={styles.dropDownStyle}
-                selectedItemStyle={styles.dropDownSelectedItemStyle}
-                itemStyle={styles.dropDownItemStyle}
-              />
-            </View>
-            {showSubcategory && (
-              <View style={styles.dropDownContainer}>
-                <DropDownPicker
-                  open={subcategoryOpen}
-                  value={selectedSubcategory}
-                  items={
-                    items.find((item) => item.value === selectedCategory)
-                      ?.subcategories || []
-                  }
-                  placeholder="Select a subcategory"
-                  setOpen={setSubcategoryOpen}
-                  setValue={setSelectedSubcategory}
-                  setItems={setItems}
-                  containerStyle={styles.dropDownStyle}
-                  style={styles.dropDownStyle}
-                  labelStyle={styles.dropDownLabelStyle}
-                  dropDownStyle={styles.dropDownStyle}
-                  selectedItemStyle={styles.dropDownSelectedItemStyle}
-                  itemStyle={styles.dropDownItemStyle}
-                />
-              </View>
-            )}
+        </View>
+        {showSubcategory && (
+          <View style={styles.dropDownContainer}>
+            <DropDownPicker
+              open={subcategoryOpen}
+              value={selectedSubcategory}
+              items={
+                items.find((item) => item.value === selectedCategory)
+                  ?.subcategories || []
+              }
+              placeholder="Select a subcategory"
+              setOpen={setSubcategoryOpen}
+              setValue={setSelectedSubcategory}
+              setItems={setItems}
+              containerStyle={styles.dropDownStyle}
+              style={styles.dropDownStyle}
+              labelStyle={styles.dropDownLabelStyle}
+              dropDownStyle={styles.dropDownStyle}
+              selectedItemStyle={styles.dropDownSelectedItemStyle}
+              itemStyle={styles.dropDownItemStyle}
+            />
           </View>
-          <View style={styles.container}>
-            {image ? (
-              <Image source={{ uri: image }} style={styles.imageStyle} />
-            ) : (
-              <Image source={{ uri: image }} style={styles.imagePlaceholder} />
-            )}
-            {/* <Text style={styles.textStyle}>{filePath.uri}</Text> */}
-            <TouchableOpacity
-              activeOpacity={0.5}
-              style={styles.buttonStyle}
-              onPress={pickImage}
-            >
-              <Text style={styles.textStyle}>Choose Image</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              activeOpacity={0.5}
-              disabled={!isImageSelected}
+        )}
+      </View>
+      <View style={styles.container}>
+        {image ? (
+          <Image source={{ uri: image }} style={styles.imageStyle} />
+        ) : (
+          <Image source={{ uri: image }} style={styles.imagePlaceholder} />
+        )}
+        {/* <Text style={styles.textStyle}>{filePath.uri}</Text> */}
+        <TouchableOpacity
+          activeOpacity={0.5}
+          style={styles.buttonStyle}
+          onPress={pickImage}
+        >
+          <Text style={styles.textStyle}>Choose Image</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          activeOpacity={0.5}
+          disabled={!isImageSelected}
+          style={[
+            styles.buttonStyle,
+            isImageSelected ? null : styles.buttonDisabled,
+          ]}
+          onPress={handleSubmit(uploadPhoto)}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Feather name="upload" size={24} color="#393E46" />
+            <Text
               style={[
-                styles.buttonStyle,
-                isImageSelected ? null : styles.buttonDisabled,
+                styles.textStyle,
+                isImageSelected ? null : styles.textStyleDisabled,
               ]}
-              onPress={handleSubmit(uploadPhoto)}
+              text={loading ? "Loading..." : "Upload"}
             >
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Feather name="upload" size={24} color="#393E46" />
-                <Text
-                  style={[
-                    styles.textStyle,
-                    isImageSelected ? null : styles.textStyleDisabled,
-                  ]}
-                  text={loading ? "Loading..." : "Upload"}
-                >
-                  {loading ? "Loading..." : "Upload"}
-                </Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              activeOpacity={0.5}
-              style={styles.backButtonStyle}
-              onPress={() => navigation.navigate("Home")}
-            >
-              <Text style={styles.backTextStyle}>Back to store</Text>
-            </TouchableOpacity>
+              {loading ? "Loading..." : "Upload"}
+            </Text>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          activeOpacity={0.5}
+          style={styles.backButtonStyle}
+          onPress={() => navigation.navigate("Home")}
+        >
+          <Text style={styles.backTextStyle}>Back to store</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
@@ -320,6 +316,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     paddingVertical: 20,
+    zIndex: 9999,
   },
   textStyle: {
     padding: 10,
@@ -338,6 +335,7 @@ const styles = StyleSheet.create({
   },
   appButtonContainer: {
     backgroundColor: "#cfc5ae",
+    zIndex: 9999,
     paddingHorizontal: 20,
     paddingTop: 20, // Decreased the top padding to lower the height
     paddingBottom: 10, // Decreased the bottom padding to lower the height

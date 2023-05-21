@@ -55,6 +55,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizintal: 10,
     marginVertical: 5,
+    zIndex: 9999,
   },
   input: {},
 });

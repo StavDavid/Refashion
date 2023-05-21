@@ -152,7 +152,7 @@ const History = () => {
         <TouchableOpacity
           activeOpacity={0.5}
           style={styles.backButtonStyle}
-          onPress={() => navigation.navigate("Home")}
+          onPress={() => navigation.navigate("Settings")}
         >
           <AntDesign name="arrowleft" size={24} color="gray" />
         </TouchableOpacity>
