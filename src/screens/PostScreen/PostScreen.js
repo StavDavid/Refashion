@@ -232,7 +232,11 @@ const PostScreen = () => {
         )}
       </View>
       <View style={styles.container}>
-        <Image source={{ uri: image }} style={styles.imageStyle} />
+        {image ? (
+          <Image source={{ uri: image }} style={styles.imageStyle} />
+        ) : (
+          <Image source={{ uri: image }} style={styles.imagePlaceholder} />
+        )}
         {/* <Text style={styles.textStyle}>{filePath.uri}</Text> */}
         <TouchableOpacity
           activeOpacity={0.5}
@@ -369,9 +373,12 @@ const styles = StyleSheet.create({
     // borderRadius: 8,
   },
   imageStyle: {
-    width: 200,
-    height: 200,
+    width: 250,
+    height: 300,
     margin: 5,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ccc",
   },
   buttonDisabled: {
     opacity: 0.5,
@@ -421,5 +428,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "white",
     textAlign: "center", // Center the title vertically
+  },
+  imagePlaceholder: {
+    width: 250,
+    height: 300,
+    backgroundColor: "#eaeaea",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ccc",
   },
 });
