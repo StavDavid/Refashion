@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, ActivityIndicator } from "react-native";
+import { View, ActivityIndicator } from "react-native"; // Import AsyncStorage
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -15,33 +15,39 @@ import Settings from "../screens/SettingsScreen";
 import History from "../screens/HistoryScreen";
 import Purchases from "../screens/PurchasesScreen";
 import Reports from "../screens/ReportsScreen";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const Stack = createNativeStackNavigator();
 
 const Navigation = () => {
-  const [user, setUser] = useState(undefined);
+  const [user, setUser] = useState(false); // Initialize state to null
 
   const checkUser = async () => {
     try {
       const auth = getAuth();
-      const authUser = onAuthStateChanged(auth, (user) => {
+      onAuthStateChanged(auth, (user) => {
         if (user) {
-          // User is signed in, see docs for a list of available properties
-          // https://firebase.google.com/docs/reference/js/firebase.User
-          const uid = user.uid;
-          setUser(authUser);
+          // User is signed in
+          setUser(true); // Set state to true
+          AsyncStorage.setItem("userSignedIn", "true"); // Save value to AsyncStorage
         } else {
           // User is signed out
-          // ...
-          setUser(null);
+          setUser(false); // Set state to false
+          AsyncStorage.setItem("userSignedIn", "false"); // Save value to AsyncStorage
         }
       });
     } catch (e) {
-      setUser(null);
+      setUser(false); // Set state to false on error
+      AsyncStorage.setItem("userSignedIn", "false"); // Save value to AsyncStorage
     }
   };
 
   useEffect(() => {
-    checkUser();
+    const getUserSignedIn = async () => {
+      const value = await AsyncStorage.getItem("userSignedIn"); // Retrieve value from AsyncStorage
+      setUser(value === "true"); // Set state based on retrieved value
+    };
+
+    getUserSignedIn();
   }, []);
 
   useEffect(() => {
@@ -54,7 +60,16 @@ const Navigation = () => {
     // Hub.listen('auth', listener);
     // return () => Hub.remove('auth', listener);
   }, []);
-  if (user) {
+
+  if (user === null) {
+    // Show loading indicator if user state is null
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator />
+      </View>
+    );
+  } else if (user) {
+    // Show home screen if user is signed in
     return (
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -62,31 +77,31 @@ const Navigation = () => {
         </Stack.Navigator>
       </NavigationContainer>
     );
+  } else {
+    return (
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="SignIn" component={SignInScreen} />
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="SignUp" component={SignUpScreen} />
+          <Stack.Screen
+            name="ConfirmEmailScreen"
+            component={ConfirmEmailScreen}
+          />
+          <Stack.Screen
+            name="ForgotPasswordScreen"
+            component={ForgotPasswordScreen}
+          />
+          <Stack.Screen name="PostScreen" component={PostScreen} />
+          <Stack.Screen name="ItemDetails" component={ItemDetails} />
+          <Stack.Screen name="Settings" component={Settings} />
+          <Stack.Screen name="History" component={History} />
+          <Stack.Screen name="Purchases" component={Purchases} />
+          <Stack.Screen name="Reports" component={Reports} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    );
   }
-
-  return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="SignIn" component={SignInScreen} />
-        <Stack.Screen name="SignUp" component={SignUpScreen} />
-        <Stack.Screen
-          name="ConfirmEmailScreen"
-          component={ConfirmEmailScreen}
-        />
-        <Stack.Screen
-          name="ForgotPasswordScreen"
-          component={ForgotPasswordScreen}
-        />
-        <Stack.Screen name="PostScreen" component={PostScreen} />
-        <Stack.Screen name="ItemDetails" component={ItemDetails} />
-        <Stack.Screen name="Settings" component={Settings} />
-        <Stack.Screen name="History" component={History} />
-        <Stack.Screen name="Purchases" component={Purchases} />
-        <Stack.Screen name="Reports" component={Reports} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
 };
 
 export default Navigation;

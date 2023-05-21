@@ -9,12 +9,16 @@
 import React from "react";
 import { SafeAreaView, StyleSheet, Text } from "react-native";
 import Navigation from "./src/navigation";
+import { StatusBar } from "expo-status-bar";
+import { Constants } from "expo-constants";
+
 /* $FlowFixMe[missing-local-annot] The type annotation(s) required by Flow's
  * LTI update could not be added via codemod */
 const App = () => {
   return (
     // Auth.signOut()
     <SafeAreaView style={styles.root}>
+      <StatusBar style="dark" translucent={true} backgroundColor="#cfc5ae" />
       <Navigation />
     </SafeAreaView>
   );

@@ -163,6 +163,7 @@ const Purchases = () => {
   return (
     <View style={{ flex: 1 }}>
       <Text style={styles.appButtonContainer}>Purchases History</Text>
+
       <ScrollView showVerticalScrollIndicator={false}>
         <View style={styles.gallery}>
           {gallery.map((image, index) => (
@@ -190,6 +191,15 @@ const Purchases = () => {
           ))}
         </View>
       </ScrollView>
+      <View style={styles.backButtonContainer}>
+        <TouchableOpacity
+          activeOpacity={0.5}
+          style={styles.backButtonStyle}
+          onPress={() => navigation.navigate("Home")}
+        >
+          <AntDesign name="arrowleft" size={24} color="gray" />
+        </TouchableOpacity>
+      </View>
       <Modal visible={showReportInput} transparent>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
@@ -341,13 +351,28 @@ const styles = StyleSheet.create({
     width: 250,
     borderRadius: 8,
   },
+  backButtonContainer: {
+    position: "absolute",
+    bottom: 20,
+    left: "10%",
+    transform: [{ translateX: -25 }],
+    zIndex: 999,
+  },
   backButtonStyle: {
     alignItems: "center",
-    color: "gray",
-    padding: 5,
-    marginVertical: 10,
-    width: 250,
-    // borderRadius: 8,
+    justifyContent: "center",
+    backgroundColor: "#FFFFFF",
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    elevation: 5,
+    shadowColor: "black",
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
   },
   imageStyle: {
     width: 200,

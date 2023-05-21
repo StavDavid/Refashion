@@ -1,4 +1,11 @@
-import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  Linking,
+} from "react-native";
 import React, { useState } from "react";
 import CustomInput from "../../components/CustomInput";
 import CustomButton from "../../components/CustomButton";
@@ -37,46 +44,18 @@ const SignUpScreen = () => {
     navigation.navigate("SignIn");
   };
   const onTermsOfUsePressed = () => {
-    console.warn("TermsOfUse");
+    const url =
+      "https://doc-hosting.flycricket.io/refashion-terms-of-use/e3f6ed7b-586b-4db5-b30b-e79d48dab90b/terms";
+    Linking.openURL(url);
   };
   const onPrivacyPolicyPressed = () => {
-    console.warn("PrivacyPolicy");
+    const url =
+      "https://doc-hosting.flycricket.io/refashion-privacy-policy/6d0061fa-18c2-422f-a8ee-30873eda5f01/privacy";
+    Linking.openURL(url);
   };
   return (
     <ScrollView showVerticalScrollIndicator={false}>
       <Text style={styles.appButtonContainer}>Create a user</Text>
-      {/* <CustomInput
-          name="name"
-          control={control}
-          placeholder="Full name"
-          rules={{
-            required: 'Full name is required',
-            minLength: {
-              value: 3,
-              message: 'Full name should be at least 3 charachters long',
-            },
-            maxLength: {
-              value: 24,
-              message: 'Full name should be maximum 24 charachters long',
-            },
-          }}
-        />
-        <CustomInput
-          name="username"
-          control={control}
-          placeholder="Username"
-          rules={{
-            required: 'Username is required',
-            minLength: {
-              value: 3,
-              message: 'Username should be at least 3 charachters long',
-            },
-            maxLength: {
-              value: 24,
-              message: 'Username should be maximum 24 charachters long',
-            },
-          }}
-        /> */}
       <CustomInput
         name="email"
         placeholder="Email"

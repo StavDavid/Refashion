@@ -28,6 +28,7 @@ import { getStorage, ref, listAll, getMetadata } from "firebase/storage";
 import DropDownPicker from "react-native-dropdown-picker";
 import moment from "moment";
 import Icon from "react-native-vector-icons/FontAwesome";
+import { FontAwesome } from "@expo/vector-icons";
 import { Rating } from "react-native-ratings";
 import { Card } from "react-native-elements";
 const HomeScreen = () => {
@@ -49,6 +50,8 @@ const HomeScreen = () => {
   const [timestamps, setTimestamps] = useState([]);
   const [ratings, setRatings] = useState({});
   const [value, setValue] = useState(null);
+  const [isButtonClicked, setIsButtonClicked] = useState(false);
+  const [sortOrder, setSortOrder] = useState("desc");
   const [items, setItems] = useState([
     {
       label: "All",
@@ -251,7 +254,20 @@ const HomeScreen = () => {
       return 0; // Return a default value or handle the error appropriately
     }
   };
-
+  function convertTimestampToSortable(timestamp) {
+    if (timestamp != undefined) {
+      const parts = timestamp.split(" ");
+      const dateParts = parts[0].split(".");
+      const timeParts = parts[1].split(":");
+      const year = parseInt(dateParts[2], 10) + 2000;
+      const month = parseInt(dateParts[1], 10) - 1;
+      const day = parseInt(dateParts[0], 10);
+      const hour = parseInt(timeParts[0], 10);
+      const minute = parseInt(timeParts[1], 10);
+      return new Date(year, month, day, hour, minute);
+    }
+    return;
+  }
   return (
     // <NavigationContainer independent={true}>
     //   <Navbar></Navbar>
@@ -304,71 +320,84 @@ const HomeScreen = () => {
       </View>
       <ScrollView showVerticalScrollIndicator={false}>
         <View style={styles.gallery}>
-          {gallery.map((image, index) => {
-            const categoryMatches =
-              selectedCategory === "" ||
-              names[index].category === selectedCategory;
-            const subcategoryMatches =
-              selectedSubcategory === "" ||
-              names[index].subcategory === selectedSubcategory;
+          {gallery
+            .map((image, index) => ({
+              image,
+              name: names[index].item_name,
+              description: names[index].item_description,
+              timestamp: timestamps[index],
+              index,
+            }))
+            .sort((a, b) => {
+              const timestampA = convertTimestampToSortable(a.timestamp);
+              const timestampB = convertTimestampToSortable(b.timestamp);
+              return (timestampA - timestampB) * (sortOrder === "asc" ? 1 : -1);
+            })
+            .map(({ image, name, description, timestamp, index }) => {
+              const categoryMatches =
+                selectedCategory === "" ||
+                names[index].category === selectedCategory;
+              const subcategoryMatches =
+                selectedSubcategory === "" ||
+                names[index].subcategory === selectedSubcategory;
 
-            const nameMatches =
-              search === "" ||
-              names[index].item_name
-                .toLowerCase()
-                .includes(search.toLowerCase());
+              const nameMatches =
+                search === "" ||
+                names[index].item_name
+                  .toLowerCase()
+                  .includes(search.toLowerCase());
 
-            if (categoryMatches && subcategoryMatches && nameMatches) {
-              return (
-                <Card key={index} containerStyle={styles.cardContainer}>
-                  <TouchableOpacity
-                    onPress={() =>
-                      navigation.navigate("ItemDetails", {
-                        Name: names[index].item_name,
-                        Description: names[index].item_description,
-                        Uri: image,
-                        Uid: names[index].item_uid,
-                        Email: names[index].email,
-                        Phone: names[index].phone_number,
-                      })
-                    }
-                  >
-                    <Image source={{ uri: image }} style={styles.image} />
-                    <Text style={styles.cardTitle}>
-                      {names[index].item_name}
-                    </Text>
-                    <Text style={styles.cardDescription}>
-                      {names[index].item_description}
-                    </Text>
-                    <Text style={styles.cardTimestamp}>
-                      {timestamps[index]}
-                    </Text>
-                    <View style={styles.ratingContainer}>
-                      <Rating
-                        showRating={false}
-                        startingValue={ratings[names[index].item_uid]} // Replace with the actual rating value
-                        imageSize={20}
-                        readonly
-                        style={styles.rating}
-                      />
-                      <TouchableOpacity
-                        onPress={() => handleReport(names[index].item_uid)}
-                      >
-                        <MaterialCommunityIcons
-                          name="flag"
-                          size={24}
-                          color="gray"
-                          style={styles.reportIcon}
+              if (categoryMatches && subcategoryMatches && nameMatches) {
+                return (
+                  <Card key={index} containerStyle={styles.cardContainer}>
+                    <TouchableOpacity
+                      onPress={() =>
+                        navigation.navigate("ItemDetails", {
+                          Name: names[index].item_name,
+                          Description: names[index].item_description,
+                          Uri: image,
+                          Uid: names[index].item_uid,
+                          Email: names[index].email,
+                          Phone: names[index].phone_number,
+                        })
+                      }
+                    >
+                      <Image source={{ uri: image }} style={styles.image} />
+                      <Text style={styles.cardTitle}>
+                        {names[index].item_name}
+                      </Text>
+                      <Text style={styles.cardDescription}>
+                        {names[index].item_description}
+                      </Text>
+                      <Text style={styles.cardTimestamp}>
+                        {timestamps[index]}
+                      </Text>
+                      <View style={styles.ratingContainer}>
+                        <Rating
+                          showRating={false}
+                          startingValue={ratings[names[index].item_uid]} // Replace with the actual rating value
+                          imageSize={20}
+                          readonly
+                          style={styles.rating}
                         />
-                      </TouchableOpacity>
-                    </View>
-                  </TouchableOpacity>
-                </Card>
-              );
-            }
+                        <TouchableOpacity
+                          onPress={() => handleReport(names[index].item_uid)}
+                        >
+                          <MaterialCommunityIcons
+                            name="flag"
+                            size={24}
+                            color="gray"
+                            style={styles.reportIcon}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    </TouchableOpacity>
+                  </Card>
+                );
+              }
 
-            return null;
-          })}
+              return null;
+            })}
         </View>
       </ScrollView>
       <View>
@@ -425,6 +454,30 @@ const HomeScreen = () => {
             {/* <Text style={styles.postText}>+</Text> */}
             <AntDesign name="pluscircleo" size={24} color="white" />
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.button,
+              {
+                backgroundColor:
+                  bgColor === "toggleButton" ? "#ab996f" : "#cfc5ae",
+              },
+            ]}
+            onPress={() => {
+              setIsButtonClicked(!isButtonClicked);
+              setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+            }}
+          >
+            <MaterialCommunityIcons
+              name={
+                isButtonClicked
+                  ? "sort-calendar-descending"
+                  : "sort-calendar-ascending"
+              }
+              size={28}
+              color="white"
+            />
+          </TouchableOpacity>
           <TouchableOpacity
             style={[
               styles.button,
@@ -435,17 +488,6 @@ const HomeScreen = () => {
             onPress={handleSettingPress}
           >
             <SimpleLineIcons name="settings" size={24} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.button,
-              {
-                backgroundColor: bgColor === "signOut" ? "#ab996f" : "#cfc5ae",
-              },
-            ]}
-            onPress={handleSignOutPress}
-          >
-            <AntDesign name="logout" size={24} color="white" />
           </TouchableOpacity>
         </View>
       </View>

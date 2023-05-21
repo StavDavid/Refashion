@@ -21,6 +21,7 @@ import * as ImagePicker from "expo-image-picker";
 import { FontAwesome } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
 import {
   getStorage,
   ref,
@@ -51,7 +52,15 @@ const Settings = () => {
   const handleReportsPress = () => {
     navigation.navigate("Reports");
   };
-
+  const signOutUser = async () => {
+    try {
+      await signOut(auth).then(() => {
+        navigation.navigate("SignIn");
+      });
+    } catch (error) {
+      console.warn(error.message);
+    }
+  };
   useEffect(() => {
     const getData = async () => {
       const docRef = doc(db, `users/${auth.currentUser.uid}`);
@@ -93,6 +102,10 @@ const Settings = () => {
         <TouchableOpacity style={styles.button} onPress={handleImprove}>
           <FontAwesome5 name="hands-helping" size={24} color="black" />
           <Text>Help us improve!</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={signOutUser}>
+          <AntDesign name="logout" size={24} color="black" />
+          <Text>Sign Out</Text>
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.5}
